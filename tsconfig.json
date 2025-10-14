@@ -1,0 +1,11 @@
+{
+  "extends": "./.nuxt/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": { "~/*": ["./*"], "@/*": ["./*"] },
+    "types": ["nuxt", "@nuxtjs/supabase"],
+    "skipLibCheck": true,
+    "moduleResolution": "bundler"
+  },
+  "include": ["**/*.ts", "**/*.tsx", "**/*.vue", "nuxt.config.ts", ".nuxt", "types"]
+}
