@@ -1,7 +1,6 @@
 <template>
   <form class="hidden lg:block" @submit.prevent>
     <h3 class="sr-only">Фильтры</h3>
-
     <Disclosure
       v-for="section in filters"
       :key="section.id"
@@ -48,7 +47,7 @@
                   :id="`filter-${section.id}-${optionIdx}`"
                   :name="sectionName(section.id)"
                   :value="option.value"
-                  :type="inputType(section.id)"
+                  type="checkbox"
                   :checked="option.checked"
                   :aria-checked="option.checked"
                   class="col-start-1 row-start-1 appearance-none rounded-sm border border-gray-300 bg-white checked:border-indigo-600 checked:bg-indigo-600 indeterminate:border-indigo-600 indeterminate:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:border-gray-300 disabled:bg-gray-100 disabled:checked:bg-gray-100 forced-colors:appearance-auto"
@@ -101,11 +100,6 @@ defineProps<{
 const emit = defineEmits<{
   (e: 'toggle', payload: { sectionId: string; value: string; checked: boolean }): void
 }>()
-
-function inputType(sectionId: string) {
-  // seasons — одиночный выбор
-  return sectionId === 'seasons' ? 'radio' : 'checkbox'
-}
 
 function sectionName(sectionId: string) {
   // корректная группировка radio

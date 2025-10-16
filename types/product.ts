@@ -1,31 +1,8 @@
+import type { ProfileTag } from '~/utils/catalog'
+
 export type Gender = 'men' | 'women' | 'unisex'
 
 export type SeasonGroup = 'fall_winter' | 'spring_summer' | 'all_seasons'
-
-export type ProfileTag =
-  | 'Свежий'
-  | 'Сладкий'
-  | 'Цитрусовый'
-  | 'Древесный'
-  | 'Пряный'
-  | 'Теплый'
-  | 'Пудровый'
-  | 'Гурманский'
-  | 'Табачный'
-  | 'Кофейный'
-  | 'Удовый'
-  | 'Восточный'
-  | 'Фруктовый'
-  | 'Кожаный'
-  | 'Дымный'
-  | 'Мускусный'
-  | 'Ванильный'
-  | 'Универсальный'
-  | 'Чайный'
-  | 'Вечерний'
-  | 'Повседневный'
-  | 'Минеральный'
-  | 'Молочный'
 
 export type NoteType = 'top' | 'heart' | 'base'
 

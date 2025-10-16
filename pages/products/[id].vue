@@ -1,266 +1,433 @@
 <template>
-  <div class="bg-white">
-    <div class="pt-6">
-      <div
-        class="mx-auto max-w-2xl px-4 pt-10 pb-16 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto_auto_1fr] lg:gap-x-8 lg:px-8 lg:pt-16 lg:pb-24"
-      >
-        <div class="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
-          <h1 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-            {{ product?.name }}
-          </h1>
-          <p v-if="product?.brands?.name" class="mt-1 text-sm text-gray-500">
-            {{ product.brands.name }}
-          </p>
+  <div class="bg-white min-h-screen">
+    <nav v-if="product" class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-6" aria-label="Breadcrumb">
+      <ol class="flex items-center space-x-2 text-sm">
+        <li>
+          <NuxtLink to="/" class="text-gray-500 hover:text-gray-700 transition-colors">
+            Главная
+          </NuxtLink>
+        </li>
+        <li class="text-gray-400">/</li>
+        <li>
+          <NuxtLink :to="catalogLink" class="text-gray-500 hover:text-gray-700 transition-colors">
+            {{ catalogName }}
+          </NuxtLink>
+        </li>
+        <li class="text-gray-400">/</li>
+        <li class="text-gray-900 font-medium truncate max-w-xs">
+          {{ product.name }}
+        </li>
+      </ol>
+    </nav>
+
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-6 pb-16">
+      <div v-if="product" class="lg:grid lg:grid-cols-2 lg:gap-x-12 lg:items-start">
+        <div class="lg:sticky lg:top-6">
+          <NuxtImg
+            :src="product.image_path"
+            :alt="generateProductAlt(product.name, product.brand?.name)"
+            :title="product.name"
+            class="w-full rounded-lg bg-gray-100 object-cover shadow-lg"
+            format="webp"
+            :modifiers="{ quality: 90 }"
+          >
+            <template #placeholder>
+              <ProductImageSkeleton />
+            </template>
+          </NuxtImg>
         </div>
 
-        <div class="mt-4 lg:row-span-3 lg:mt-0">
-          <h2 class="sr-only">Информация о товаре</h2>
-          <p class="text-3xl tracking-tight text-gray-900">
-            {{ selectedPriceText }}
-          </p>
-          <p class="mt-1 text-xs text-gray-500">выбранный объём: {{ selectedVariant?.label }}</p>
-
-          <div v-if="product?.season_group" class="mt-4 text-sm text-gray-600 line-clamp-4">
-            <b>Сезон:</b> {{ handleSeasonGroup }}
-          </div>
-
-          <div v-if="product?.top_notes" class="mt-4 text-sm text-gray-600 line-clamp-4">
-            <b>Верхние ноты:</b> {{ product?.top_notes }}
-          </div>
-
-          <div v-if="product?.heart_notes" class="mt-4 text-sm text-gray-600 line-clamp-4">
-            <b>Ноты сердца:</b> {{ product?.heart_notes }}
-          </div>
-
-          <div v-if="product?.basic_notes" class="mt-4 text-sm text-gray-600 line-clamp-4">
-            <b>Базовые ноты:</b> {{ product?.basic_notes }}
-          </div>
-
-          <div v-if="product?.suits" class="mt-4 text-sm text-gray-600 line-clamp-4">
-            <b>Кому подойдет:</b> {{ product?.suits }}
-          </div>
-
-          <div v-if="product?.benefits" class="mt-4 text-sm text-gray-600 line-clamp-4">
-            <b>Преимущества:</b> {{ product?.benefits }}
-          </div>
-
-          <div v-if="product?.occasions" class="mt-4 text-sm text-gray-600 line-clamp-4">
-            <b>Ситуации:</b> {{ product?.occasions }}
-          </div>
-
-          <div v-if="product?.profile_tags" class="mt-4 text-sm text-gray-600 line-clamp-4">
-            <b>Профиль аромата:</b> {{ handleProfileTags }}
-          </div>
-          <div class="mt-8">
-            <h3 class="text-sm font-medium text-gray-900">Объём флакона</h3>
-            <fieldset class="mt-3" aria-label="Выберите объём флакона">
-              <div class="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                <label
-                  v-for="v in variants"
-                  :key="v.id"
-                  class="group relative flex items-center justify-center rounded-md border border-gray-300 bg-white p-2 has-checked:border-indigo-600 has-checked:bg-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <input
-                    class="absolute inset-0 appearance-none cursor-pointer"
-                    type="radio"
-                    name="bottle"
-                    :value="v.id"
-                    :checked="v.id === selectedId"
-                    :disabled="!v.inStock"
-                    @change="selectedId = v.id"
-                    :aria-label="v.label"
-                  />
-                  <span
-                    class="text-sm font-medium group-has-checked:text-white"
-                    :class="v.inStock ? 'text-gray-900' : 'text-gray-400'"
-                  >
-                    {{ v.label }}
-                  </span>
-                  <span
-                    v-if="v.price !== null"
-                    class="ml-1 text-xs group-has-checked:text-white"
-                    :class="v.inStock ? 'text-gray-500' : 'text-gray-400'"
-                  >
-                    ({{ formatPrice(v.price) }})
-                  </span>
-                  <span v-else class="ml-1 text-xs text-gray-400 group-has-checked:text-white">
-                    нет в наличии
-                  </span>
-                </label>
-              </div>
-            </fieldset>
-          </div>
-
-          <div class="mt-6 flex gap-2">
-            <button
-              type="button"
-              class="cursor-pointer inline-flex flex-1 items-center justify-center rounded-md bg-orange-600 px-4 py-2 text-white font-medium hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500"
-              :disabled="!selectedVariant || selectedVariant.price === null"
-              @click="addToCart()"
-            >
-              В корзину
-            </button>
+        <div class="mt-10 lg:mt-0">
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <h1 class="text-3xl font-bold tracking-tight text-gray-900">
+                {{ product.name }}
+              </h1>
+              <p v-if="product.brand?.name" class="mt-2 text-lg text-gray-500">
+                {{ product.brand.name }}
+              </p>
+            </div>
 
             <button
               v-if="isMounted"
               type="button"
-              :aria-pressed="favorites.isFavorite(product.id)"
-              :aria-label="
-                favorites.isFavorite(product.id) ? 'Убрать из избранного' : 'В избранное'
-              "
-              @click.stop="onToggleFavorite(product, $event)"
+              class="ml-4 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+              :aria-pressed="isFavorite"
+              :aria-label="isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'"
+              @click="handleFavoriteToggle"
             >
               <HeartIcon
-                class="h-6 w-6 cursor-pointer"
-                :class="
-                  favorites.isFavorite(product.id)
-                    ? 'text-red-600'
-                    : 'text-gray-600 group-hover:text-gray-800'
-                "
+                class="h-6 w-6 transition-colors"
+                :class="isFavorite ? 'text-red-600 fill-red-600' : 'text-gray-600'"
                 aria-hidden="true"
               />
             </button>
           </div>
+
+          <div v-if="product.profile_tags?.length" class="mt-4 flex flex-wrap gap-2">
+            <span
+              v-for="tag in product.profile_tags"
+              :key="tag"
+              class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-700"
+            >
+              {{ tag }}
+            </span>
+          </div>
+
+          <div class="mt-6 rounded-lg bg-gray-50 p-4">
+            <p class="text-3xl font-bold text-gray-900">
+              {{ selectedPriceText }}
+            </p>
+            <p class="mt-1 text-sm text-gray-500">Выбранный объём: {{ selectedVariant?.label }}</p>
+          </div>
+
+          <section class="mt-8" aria-labelledby="sizes-heading">
+            <h3 id="sizes-heading" class="text-sm font-medium text-gray-900">Объём флакона</h3>
+
+            <div class="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
+              <label
+                v-for="variant in variants"
+                :key="variant.id"
+                class="group relative flex cursor-pointer flex-col items-center justify-center rounded-md border border-gray-300 bg-white p-3 transition-all has-checked:border-indigo-600 has-checked:bg-indigo-600 has-checked:shadow-md focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+                :class="{
+                  'hover:border-indigo-300 hover:shadow-sm': variant.inStock,
+                }"
+              >
+                <input
+                  class="absolute inset-0 appearance-none cursor-pointer"
+                  type="radio"
+                  name="bottle"
+                  :value="variant.id"
+                  :checked="variant.id === selectedId"
+                  :disabled="!variant.inStock"
+                  :aria-label="`Объём ${variant.label}, цена ${variant.price ? formatPrice(variant.price) : 'нет в наличии'}`"
+                  @change="selectedId = variant.id"
+                />
+
+                <span
+                  class="text-sm font-medium transition-colors group-has-checked:text-white"
+                  :class="variant.inStock ? 'text-gray-900' : 'text-gray-400'"
+                >
+                  {{ variant.label }}
+                </span>
+
+                <span
+                  v-if="variant.price !== null"
+                  class="mt-1 text-xs transition-colors group-has-checked:text-white/90"
+                  :class="variant.inStock ? 'text-gray-500' : 'text-gray-400'"
+                >
+                  {{ formatPrice(variant.price) }}
+                </span>
+
+                <!-- Нет в наличии -->
+                <span v-else class="mt-1 text-xs text-gray-400 group-has-checked:text-white/90">
+                  нет
+                </span>
+
+                <!-- Галочка -->
+                <span
+                  v-if="variant.id === selectedId"
+                  class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-indigo-600 text-white"
+                  aria-hidden="true"
+                >
+                  <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 12 12">
+                    <path
+                      d="M3.707 5.293a1 1 0 00-1.414 1.414l1.414-1.414zM5 8l-.707.707a1 1 0 001.414 0L5 8zm4.707-3.293a1 1 0 00-1.414-1.414l1.414 1.414zm-7.414 2l2 2 1.414-1.414-2-2-1.414 1.414zm3.414 2l4-4-1.414-1.414-4 4 1.414 1.414z"
+                    />
+                  </svg>
+                </span>
+              </label>
+            </div>
+          </section>
+
+          <!-- ✅ УЛУЧШЕНО: Кнопка в корзину -->
+          <button
+            type="button"
+            class="mt-8 w-full inline-flex items-center justify-center rounded-md bg-orange-600 px-6 py-3 text-base font-medium text-white transition-all hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-600"
+            :disabled="!canAddToCart || isAddingToCart"
+            :aria-label="`Добавить ${product.name} объёмом ${selectedVariant?.label} в корзину`"
+            @click="handleAddToCart"
+          >
+            <!-- Спиннер -->
+            <svg
+              v-if="isAddingToCart"
+              class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+
+            <span>{{ isAddingToCart ? 'Добавление...' : 'Добавить в корзину' }}</span>
+          </button>
+
+          <!-- ✅ УЛУЧШЕНО: Детали товара -->
+          <div class="mt-10 space-y-6">
+            <!-- Сезон -->
+            <div v-if="product.season_group">
+              <h3 class="text-sm font-medium text-gray-900">Сезон</h3>
+              <p class="mt-2 text-sm text-gray-600">
+                {{ getSeasonLabel(product.season_group) }}
+              </p>
+            </div>
+
+            <!-- Ноты аромата -->
+            <div v-if="hasNotes" class="space-y-3">
+              <h3 class="text-sm font-medium text-gray-900">Пирамида аромата</h3>
+
+              <div v-if="topNotes.length" class="flex gap-3">
+                <span class="text-sm font-medium text-gray-500 min-w-[5rem]">Верхние:</span>
+                <p class="text-sm text-gray-600">{{ topNotes.join(', ') }}</p>
+              </div>
+
+              <div v-if="heartNotes.length" class="flex gap-3">
+                <span class="text-sm font-medium text-gray-500 min-w-[5rem]">Средние:</span>
+                <p class="text-sm text-gray-600">{{ heartNotes.join(', ') }}</p>
+              </div>
+
+              <div v-if="baseNotes.length" class="flex gap-3">
+                <span class="text-sm font-medium text-gray-500 min-w-[5rem]">Базовые:</span>
+                <p class="text-sm text-gray-600">{{ baseNotes.join(', ') }}</p>
+              </div>
+            </div>
+
+            <!-- Кому подойдет -->
+            <div v-if="product.suits">
+              <h3 class="text-sm font-medium text-gray-900">Кому подойдет</h3>
+              <p class="mt-2 text-sm text-gray-600">{{ product.suits }}</p>
+            </div>
+
+            <!-- Преимущества -->
+            <div v-if="product.benefits">
+              <h3 class="text-sm font-medium text-gray-900">Преимущества</h3>
+              <p class="mt-2 text-sm text-gray-600">{{ product.benefits }}</p>
+            </div>
+
+            <!-- Ситуации -->
+            <div v-if="product.occasions">
+              <h3 class="text-sm font-medium text-gray-900">Подходит для</h3>
+              <p class="mt-2 text-sm text-gray-600">{{ product.occasions }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ ДОБАВЛЕНО: Скелетон при загрузке (вместо оверлея) -->
+      <div v-else-if="pending" class="lg:grid lg:grid-cols-2 lg:gap-x-12">
+        <!-- Скелетон изображения -->
+        <div class="aspect-square lg:sticky lg:top-6">
+          <ProductImageSkeleton />
         </div>
 
-        <div
-          class="py-10 lg:col-span-2 lg:col-start-1 lg:border-r lg:border-gray-200 lg:pt-6 lg:pr-8 lg:pb-16"
+        <!-- Скелетон контента -->
+        <div class="mt-10 lg:mt-0 space-y-6 animate-pulse">
+          <div class="h-8 bg-gray-200 rounded w-3/4"></div>
+          <div class="h-6 bg-gray-200 rounded w-1/4"></div>
+          <div class="h-24 bg-gray-200 rounded"></div>
+          <div class="grid grid-cols-4 gap-2">
+            <div class="h-16 bg-gray-200 rounded"></div>
+            <div class="h-16 bg-gray-200 rounded"></div>
+            <div class="h-16 bg-gray-200 rounded"></div>
+            <div class="h-16 bg-gray-200 rounded"></div>
+          </div>
+          <div class="h-12 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+
+      <!-- ✅ Обработка ошибки -->
+      <div v-else-if="error" class="text-center py-12">
+        <svg
+          class="mx-auto h-12 w-12 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          aria-hidden="true"
         >
-          <NuxtImg
-            :src="product?.image_path"
-            :alt="product?.name || 'Фото товара'"
-            class="row-span-2 aspect-3/4 rounded-lg object-cover"
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
           />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">Товар не найден</h3>
+        <p class="mt-1 text-sm text-gray-500">Возможно, он был удален или не существует</p>
+        <div class="mt-6">
+          <NuxtLink
+            to="/catalog/men"
+            class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Вернуться в каталог
+          </NuxtLink>
         </div>
       </div>
     </div>
-  </div>
-  <div
-    v-if="!isMounted || !product"
-    class="flex items-center justify-center fixed left-0 top-0 z-50 h-full w-full bg-gray-100/50"
-    role="status"
-  >
-    <svg
-      aria-hidden="true"
-      class="w-12 h-12 text-gray-200 animate-spin fill-blue-600"
-      viewBox="0 0 100 101"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M100 50.59C100 78.205 77.614 100.591 50 100.591C22.386 100.591 0 78.205 0 50.59C0 22.977 22.386 0.591 50 0.591C77.614 0.591 100 22.977 100 50.59Z"
-        fill="currentColor"
-      />
-      <path
-        d="M93.968 39.041C96.393 38.404 97.862 35.912 97.008 33.554C95.293 28.823 92.871 24.369 89.817 20.348C85.845 15.119 80.883 10.724 75.212 7.413C69.542 4.102 63.275 1.94 56.77 1.051C51.767 0.368 46.698 0.447 41.735 1.279C39.261 1.693 37.813 4.198 38.45 6.623C39.087 9.049 41.569 10.472 44.051 10.107C47.851 9.549 51.719 9.527 55.54 10.049C60.864 10.777 65.993 12.546 70.633 15.255C75.274 17.965 79.335 21.562 82.585 25.841C84.918 28.912 86.8 32.291 88.181 35.876C89.083 38.216 91.542 39.678 93.968 39.041Z"
-        fill="currentFill"
-      />
-    </svg>
-    <span class="sr-only">Загрузка…</span>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { Product } from '~/types/product'
-import { computed, ref, watchEffect } from 'vue'
-import { useRoute } from 'vue-router'
-import { useCartStore } from '~/stores/cart'
-import { useFavoritesStore } from '~/stores/favorites'
-import { useAsyncData } from '#app'
+import { computed, ref, watch } from 'vue'
 import { HeartIcon } from '@heroicons/vue/24/outline'
 import { useMounted } from '@vueuse/core'
+import { useCartStore } from '~/stores/cart'
+import { useFavoritesStore } from '~/stores/favorites'
+import ProductImageSkeleton from '~/components/catalog/ProductImageSkeleton.vue'
+import {
+  type BottleVariant,
+  createBottleVariants,
+  parseNotes,
+  formatPrice,
+  generateProductAlt,
+  getSeasonLabel,
+} from '~/utils/constants'
 
-type BottleVariant = {
-  id: string
-  ml: number
-  label: string
-  price: number | null
-  inStock: boolean
-}
+// Nuxt composables
+import { useRoute } from 'vue-router'
+import { createError, useAsyncData, useNuxtApp, useSeoMeta } from 'nuxt/app'
 
+// ✅ Получаем ID из роута
 const route = useRoute()
-const cart = useCartStore()
-const favorites = useFavoritesStore()
-const id = route.params.id
+const productId = route.params.id as string
 
-const { data: product } = await useAsyncData<Product>(
-  `product:${id}`,
-  () => $fetch(`/api/products/${route.params.id}`),
-  { server: true }
+// ✅ УЛУЧШЕНО: Валидация ID
+if (!productId || typeof productId !== 'string') {
+  throw createError({
+    statusCode: 400,
+    statusMessage: 'Invalid product ID',
+  })
+}
+
+// ✅ Загрузка данных
+const {
+  data: product,
+  pending,
+  error,
+} = await useAsyncData(
+  `product:${productId}`,
+  () => $fetch<Product>(`/api/products/${productId}`),
+  {
+    server: true,
+    // ✅ Кеширование на клиенте
+    getCachedData(key) {
+      const data = useNuxtApp().payload.data[key]
+      if (data && Date.now() - data.fetchedAt < 1000 * 60 * 5) {
+        return data
+      }
+    },
+  }
 )
 
-const variants = computed<BottleVariant[]>(() => {
-  const p: any = product.value
-  if (!p) return []
-  const map: Array<[string, number, string]> = [
-    ['2ml', 2, 'price_2ml'],
-    ['5ml', 5, 'price_5ml'],
-    ['10ml', 10, 'price_10ml'],
-    ['30ml', 30, 'price_30ml'],
-    ['50ml', 50, 'price_50ml'],
-    ['100ml', 100, 'price_100ml'],
-  ]
-  const out: BottleVariant[] = []
-  for (const [id, ml, key] of map) {
-    if (key in p) {
-      const price = typeof p[key] === 'number' ? (p[key] as number) : null
-      out.push({ id, ml, label: `${ml} мл`, price, inStock: price !== null && price > 0 })
-    }
-  }
-  return out.length ? out : [{ id: '2ml', ml: 2, label: '2 мл', price: null, inStock: false }]
-})
-
-const selectedId = ref<string | null>(null)
-const selectedVariant = computed(
-  () => variants.value.find((v) => v.id === selectedId.value) ?? variants.value[0]
-)
-
-watchEffect(() => {
-  if (!product.value) return
-  const firstAvailable = variants.value.find((v) => v.inStock) ?? variants.value[0]
-  selectedId.value = firstAvailable?.id ?? null
-})
-
-function formatPrice(n: number) {
-  try {
-    return new Intl.NumberFormat('ru-RU', {
-      style: 'currency',
-      currency: 'RUB',
-      maximumFractionDigits: 0,
-    }).format(n)
-  } catch {
-    return `${n} ₽`
-  }
-}
-const selectedPriceText = computed(() => {
-  const v = selectedVariant.value
-  return v?.price != null ? formatPrice(v.price) : 'Нет в наличии'
-})
-
-const handleSeasonGroup = computed(() => {
-  if (product.value?.season_group === 'all_seasons') {
-    return 'Всесезонный'
-  } else if (product.value?.season_group === 'spring_summer') {
-    return 'Весна - лето'
-  } else if (product.value?.season_group === 'fall_winter') {
-    return 'Осень - зима'
-  }
-})
-
-const handleProfileTags = computed(() => {
-  if (product.value?.profile_tags) {
-    return product.value.profile_tags.join(', ')
-  }
-})
-
-function addToCart() {
-  if (!product.value || !selectedVariant.value || selectedVariant.value.price == null) return
-  cart.add(product.value, 1)
+// ✅ Обработка 404
+if (error.value?.statusCode === 404) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: 'Product not found',
+  })
 }
 
-function onToggleFavorite() {
-  if (!product.value) return
-  favorites.toggle(product.value)
-}
+// ✅ SEO
+useSeoMeta({
+  title: () => (product.value ? `${product.value.name} | Flakonista` : 'Загрузка...'),
+  description: () => product.value?.benefits || product.value?.suits || '',
+  ogTitle: () => product.value?.name,
+  ogDescription: () => product.value?.benefits || '',
+  ogImage: () => product.value?.image_path,
+})
+
+// ✅ Состояние
+const cart = useCartStore() as ReturnType<typeof useCartStore>
+const favorites = useFavoritesStore() as ReturnType<typeof useFavoritesStore>
 const isMounted = useMounted()
+const selectedId = ref<string | null>(null)
+const isAddingToCart = ref(false)
+
+// ✅ Варианты флаконов (без `as any`)
+const variants = computed<BottleVariant[]>(() => {
+  if (!product.value) return []
+  return createBottleVariants(product.value)
+})
+
+const selectedVariant = computed(() => {
+  return variants.value.find((v) => v.id === selectedId.value) ?? variants.value[0]
+})
+
+const selectedPriceText = computed(() => {
+  const variant = selectedVariant.value
+  return variant?.price != null ? formatPrice(variant.price) : 'Нет в наличии'
+})
+
+const canAddToCart = computed(() => {
+  return !!product.value && !!selectedVariant.value && selectedVariant.value.price != null
+})
+
+const isFavorite = computed(() => {
+  return product.value ? (favorites as any).isFavorite(product.value.id) : false
+})
+
+const catalogLink = computed(() => {
+  if (!product.value?.gender) return '/catalog/men'
+  return product.value.gender === 'women' ? '/catalog/women' : '/catalog/men'
+})
+
+const catalogName = computed(() => {
+  if (!product.value?.gender) return 'Каталог'
+  return product.value.gender === 'women' ? 'Женщинам' : 'Мужчинам'
+})
+
+const topNotes = computed(() => parseNotes(product.value?.top_notes ?? null))
+const heartNotes = computed(() => parseNotes(product.value?.heart_notes ?? null))
+const baseNotes = computed(() => parseNotes(product.value?.basic_notes ?? null))
+const hasNotes = computed(
+  () => topNotes.value.length > 0 || heartNotes.value.length > 0 || baseNotes.value.length > 0
+)
+
+watch(
+  () => product.value,
+  (newProduct) => {
+    if (!newProduct) return
+
+    const firstAvailable = variants.value.find((v) => v.inStock) ?? variants.value[0]
+    selectedId.value = firstAvailable?.id ?? null
+  },
+  { immediate: true }
+)
+
+async function handleAddToCart() {
+  if (!canAddToCart.value) return
+
+  isAddingToCart.value = true
+
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 300))
+
+    cart.add(product.value!, 1, selectedVariant.value!)
+  } catch (error) {
+    console.error('[ProductPage] Failed to add to cart:', error)
+  } finally {
+    isAddingToCart.value = false
+  }
+}
+
+/**
+ * Переключение избранного
+ */
+function handleFavoriteToggle() {
+  if (!product.value) return
+  ;(favorites as any).toggle(product.value)
+}
 </script>

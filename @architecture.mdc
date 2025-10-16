@@ -1,0 +1,119 @@
+## Архитектура проекта
+
+Проект — это витрина каталога ароматов на Nuxt 3 с серверными API-эндпоинтами (Nitro), клиентскими композициями (composables) и состоянием через Pinia с персистом. Источник данных — Supabase (PostgreSQL + PostgREST). Акцент на типизацию (TypeScript), производительность (кеширование, пагинация, lazy UI) и DX (модули Nuxt, Tailwind, Headless UI).
+
+### Технологический стек
+
+- **Nuxt 3**: рендеринг страниц, маршрутизация, автоимпорт, серверная часть на Nitro.
+- **Nitro (server/api)**: эндпоинты для продуктов и брендов, обращаются к Supabase.
+- **Supabase**: `@nuxtjs/supabase` для серверного доступа к БД.
+- **Pinia**: `stores/cart.ts`, `stores/favorites.ts` с persisted-state плагином.
+- **Tailwind CSS v4 (via @tailwindcss/vite)** и **@nuxt/image** для оптимизации изображений.
+- **TypeScript**: строгие типы домена (`types/product.ts`, `types/api.ts`).
+- **VueUse/Headless UI**: утилиты и доступные компоненты.
+
+### Разделы проекта
+
+- `app/`, `layouts/`, `pages/`: структура Nuxt-приложения, базовый каркас (`app/app.vue`) с `NuxtLayout` и `NuxtPage`.
+- `components/`: UI-компоненты каталога, фильтров, шапки, и т.д.
+- `composables/`: бизнес-логика клиента, в т.ч. `useApi` (унифицированные HTTP-запросы) и `useInfiniteProducts` (пагинация, фильтры, сортировка, загрузка брендов).
+- `server/api/`: серверные эндпоинты (`/api/products`, `/api/products/:id`, `/api/brands`).
+- `stores/`: состояние корзины и избранного с персистом.
+- `types/`: доменные типы (Product, Brand, ответы API).
+- `utils/`: константы, вычисления цен, форматирование, валидация запросов, справочники каталога.
+
+### Конфигурация Nuxt (`nuxt.config.ts`)
+
+- CSS: `~/assets/css/main.css`.
+- Vite плагины: `tailwindcss()`.
+- Модули: `@nuxtjs/supabase` (без редиректов), `@pinia/nuxt`, `@nuxt/image`.
+- Image: пресеты качества/форматов и брейкпоинты.
+- Nitro: сжатие статики, prerender некоторых маршрутов.
+
+### Данные и доменная модель
+
+- `types/product.ts` определяет `Product`, `Brand`, словари: `Gender`, `SeasonGroup`, и профильные теги (из `utils/catalog`).
+- `types/api.ts` описывает формы ответов: `ProductsListResponse`, `ProductDetailResponse`.
+
+### Клиентская логика
+
+- `composables/useApi.ts`: обёртка над `$fetch` с таймаутом, отменой, ретраями, единым состоянием `pending/error/status`. Поддержка `GET/POST/PUT/PATCH/DELETE` и объединения query/headers.
+- `composables/useInfiniteProducts.ts`:
+  - Держит реактивные `products`, `total`, `page`, `perPage`, флаги загрузки/ошибок.
+  - Поддерживает фильтры: бренды, сезон, профильные теги; сортировки: newest/price asc/desc.
+  - SSR warm state через `initialStateKey`.
+  - Дебаунс перезагрузки при изменении фильтров/сортировки, защита от гонок запросов.
+  - Запрашивает бренды из `/api/brands` (кеширует), продукты — из `/api/products` с пагинацией.
+  - Дедупликация по `product.id` при догрузке страниц.
+
+### Состояние приложения (Pinia)
+
+- `stores/cart.ts`:
+  - Состав корзины как массив `{ id, product, qty }`, геттеры `count`, `uniqueCount`, `getQty`, `has`.
+  - Экшены: `add`, `decrement`, `setQty`, `remove`, `clear`.
+  - Персист: ключ `cart_v1`, сохраняются `items`.
+- `stores/favorites.ts`:
+  - Список избранного и индекс по `ids` для O(1) проверки.
+  - Экшены: `add`, `remove`, `toggle`, `clear`.
+  - Персист: ключ `favorites_v1`, сохраняются `items`, `ids`.
+
+### Серверные API (Nitro)
+
+- `GET /api/products` (`server/api/products.get.ts`):
+  - Валидация query: `genders`, `brands` (UUID), `season`, `profileAny/profileAll`, `sort`, `page`, `perPage` через `utils/validation`.
+  - Сборка запроса к Supabase: выборка из `products` c `brands:brand_id(id, name)`, фильтры `in/eq/overlaps/contains`, сортировка, `range` для пагинации.
+  - Возвращает типизированный `ProductsListResponse` с полями `items/count/page/perPage`.
+- `GET /api/products/:id` (`server/api/products/[id].get.ts`):
+  - Валидация UUID, опциональные параметры `withRelated`, `relatedLimit`.
+  - Получает товар, при `withRelated` — похожие (по бренду/полу), ограничение по лимиту.
+  - HTTP кеш: `Cache-Control` на 10 минут, ETag на основе `id` и `date_create`.
+- `GET /api/brands` (`server/api/brands.get.ts`):
+  - Опциональный `withCount` добавляет агрегат по количеству продуктов.
+  - Сортировка по имени, кеш: 5 минут, ETag.
+
+### Валидация и справочники
+
+- `utils/validation.ts`: константы допустимых значений, проверки (`isValidGender/Season/Sort/ProfileTag`), вспомогательная фильтрация.
+- `utils/constants.ts`: константы UI/бизнес-логики (плейсхолдеры, форматирование цены, разбор нот, варианты объёмов флаконов, лейблы сезонов).
+- `utils/catalog.ts`: справочники сезонов и профильных тегов, метки для UI (используется в фильтрах).
+
+### Рендеринг и UI
+
+- Базовая обвязка в `app/app.vue` (Headless UI id provider, `NuxtLayout`, `NuxtPage`).
+- Компоненты каталога: фильтры (desktop/mobile), грид, sort menu, модальные окна, skeleton для изображений.
+- Оптимизация изображений — через `@nuxt/image` (WebP/AVIF, пресеты экранов).
+
+### Навигация и страницы
+
+- Страницы каталога по полу: `pages/men/index.vue`, `pages/women/index.vue` используют `useInfiniteProducts` с нужными `genders`.
+- Страница товара `pages/products/[id].vue` — детальная карточка, может подгружать связанные.
+- Главная `pages/index.vue` — промо/витрина.
+
+### Производительность и кеширование
+
+- Серверные ответы для брендов/деталей продуктов кешируются заголовками.
+- Пагинация и догрузка на клиенте, дебаунс фильтров.
+- Дедупликация данных клиентом, персист в Pinia для UX между сессиями.
+
+### Тесты и качество
+
+- Скрипты: `lint` (ESLint + Vue/TS), `format` (Prettier), `test` (Vitest, @vue/test-utils, happy-dom), `test:ui`.
+
+### Потоки данных (обзор)
+
+1. UI изменяет фильтры/сортировку → `useInfiniteProducts` строит query и шлёт запрос через `useApi`.
+2. Серверный эндпоинт валидирует параметры и делает выборку в Supabase.
+3. Ответ нормализуется на клиенте, данные сливаются с предыдущими, уникализируются по `id`.
+4. Компоненты каталога отображают список, пагинацию/догрузку, состояние загрузки и ошибок.
+5. Корзина и избранное управляются через Pinia и сохраняются в localStorage.
+
+### Конфигурация окружения
+
+- Подключение к Supabase предоставляется модулем `@nuxtjs/supabase` и конфигурируется через переменные окружения Nuxt.
+- Для сборки/предпросмотра используются стандартные скрипты `nuxt dev/build/preview/generate`.
+
+### Расширение
+
+- Добавление новых фильтров: расширить `utils/catalog`/валидацию и обработку в `/api/products`, обновить `useInfiniteProducts`.
+- Добавление полей продукта: обновить `types/product.ts`, соответствующие UI-компоненты и селекты в серверных запросах.
+- SEO/OG: подключить метаданные на страницах товаров/каталога через `useHead`.

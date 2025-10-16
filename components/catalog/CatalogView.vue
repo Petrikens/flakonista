@@ -1,6 +1,5 @@
 <template>
   <div class="bg-white">
-    <!-- Мобильные фильтры -->
     <FiltersMobile
       v-model:open="mobileFiltersOpen"
       :filters="filters"
@@ -8,7 +7,7 @@
       @reset="resetFilters"
     />
 
-    <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <main class="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8">
       <div class="flex items-baseline justify-between border-b border-gray-200 pt-24 pb-6">
         <h1 class="text-4xl font-bold tracking-tight text-gray-900">{{ title }}</h1>
 
@@ -35,14 +34,6 @@
           <!-- Товары + бесконечная прокрутка -->
           <div class="lg:col-span-3">
             <ProductGrid :products="products" />
-
-            <!-- Эмпти-стейт -->
-            <div
-              v-if="!initialLoading && products.length === 0"
-              class="py-6 text-center text-sm text-gray-500"
-            >
-              Ничего не найдено
-            </div>
 
             <!-- Прогресс догрузки -->
             <div v-if="isLoadingMore" class="py-6 text-center text-sm text-gray-500">Загрузка…</div>

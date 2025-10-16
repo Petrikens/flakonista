@@ -1,85 +1,158 @@
 <template>
   <div class="bg-white">
-    <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
-      <NuxtLink
+    <!-- Обработка пустого списка -->
+    <div v-if="products.length === 0" class="py-12 text-center text-gray-500" role="status">
+      <p class="text-lg">Товары не найдены</p>
+    </div>
+
+    <div v-else class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+      <article
         v-for="product in products"
         :key="product.id"
-        :to="productLink(product)"
-        rel="noopener noreferrer"
-        :aria-label="`Открыть страницу товара: ${product.name}`"
-        class="group"
+        class="group relative"
+        :aria-label="`Карточка товара: ${product.name}`"
       >
-        <div class="relative">
-          <NuxtImg
-            :src="product.image_path"
-            :alt="product.image_path"
-            class="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 lg:aspect-auto lg:h-80"
-            :custom="true"
-            v-slot="{ src, isLoaded, imgAttrs }"
-          >
-            <img v-if="isLoaded" v-bind="imgAttrs" :src="src" />
-            <img v-else src="https://placehold.co/400x400" alt="placeholder" />
-          </NuxtImg>
-          <div
-            class="absolute inset-0 z-10 flex items-end justify-center p-3 opacity-0 transition-opacity duration-200 md:group-hover:opacity-100 group-focus-within:opacity-100"
-          >
-            <button
-              type="button"
-              class="cursor-pointer w-full rounded-md bg-white/90 px-3 py-2 text-center text-sm font-medium text-gray-900 shadow ring-1 ring-black/5 hover:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-              @click.prevent="openQuickView(product)"
+        <NuxtLink
+          :to="productLink(product)"
+          :aria-label="`Открыть страницу товара: ${product.name}`"
+          class="block"
+        >
+          <div class="relative">
+            <NuxtImg
+              :src="product.image_path"
+              :alt="generateProductAlt(product.name, product.brand?.name)"
+              :title="product.name"
+              class="aspect-square w-full rounded-lg bg-gray-200 object-cover transition-opacity duration-200 group-hover:opacity-75 lg:aspect-auto lg:h-80"
+              loading="lazy"
+              format="webp"
+              :modifiers="{ quality: 85 }"
             >
-              Быстрый просмотр
+              <template #placeholder>
+                <ProductImageSkeleton />
+              </template>
+            </NuxtImg>
+
+            <div
+              class="absolute inset-0 z-10 flex items-end justify-center p-3 opacity-0 transition-opacity duration-200 md:group-hover:opacity-100 group-focus-within:opacity-100"
+            >
+              <button
+                type="button"
+                class="w-full rounded-md bg-white/90 px-3 py-2 text-center text-sm font-medium text-gray-900 shadow ring-1 ring-black/5 hover:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors"
+                :aria-label="`Быстрый просмотр товара ${product.name}`"
+                @click.prevent="openQuickView(product)"
+              >
+                Быстрый просмотр
+              </button>
+            </div>
+
+            <!-- Кнопка избранного -->
+            <button
+              v-if="isMounted"
+              type="button"
+              class="absolute top-3 right-3 p-2 rounded-full bg-white/80 backdrop-blur-sm shadow-sm transition-all hover:bg-white hover:scale-110 z-20"
+              :aria-pressed="isFavoriteLocal(product.id)"
+              :aria-label="
+                isFavoriteLocal(product.id) ? 'Убрать из избранного' : 'Добавить в избранное'
+              "
+              @click.prevent="onToggleFavorite(product, $event)"
+            >
+              <HeartIcon
+                class="h-5 w-5 transition-colors"
+                :class="
+                  isFavoriteLocal(product.id)
+                    ? 'text-red-600 fill-red-600'
+                    : 'text-gray-600 hover:text-red-600'
+                "
+                aria-hidden="true"
+              />
             </button>
           </div>
-          <button
-            v-if="isMounted"
-            type="button"
-            class="absolute top-3 right-3 p-1 z-10"
-            :aria-pressed="favorites.isFavorite(product.id)"
-            :aria-label="favorites.isFavorite(product.id) ? 'Убрать из избранного' : 'В избранное'"
-            @click.prevent="onToggleFavorite(product, $event)"
+
+          <!-- Информация о товаре -->
+          <div class="mt-4 flex flex-col gap-1">
+            <!-- Цена (обновляется при выборе объёма) -->
+            <p class="text-lg font-medium text-gray-900">
+              {{ selectedPrice(product) }}
+            </p>
+
+            <!-- Название товара -->
+            <h3 class="text-base text-gray-700 line-clamp-2 min-h-[3.25rem]">
+              {{ product.name }}
+            </h3>
+
+            <!-- Бренд -->
+            <p v-if="product.brands?.name" class="text-sm text-gray-500">
+              {{ product.brands.name }}
+            </p>
+          </div>
+        </NuxtLink>
+
+        <div class="flex flex-col">
+          <!-- Выбор объёма -->
+          <label class="mt-1 text-sm text-gray-700" :for="`select-${product.id}`">Объём</label>
+          <select
+            class="mt-1 rounded-md border-gray-300 text-sm focus:border-orange-500 focus:ring-orange-500"
+            :id="`select-${product.id}`"
+            :aria-label="`Выбрать объём для ${product.name}`"
+            v-model="selectedByProduct[product.id]"
           >
-            <HeartIcon
-              class="h-6 w-6 cursor-pointer"
-              :class="
-                favorites.isFavorite(product.id)
-                  ? 'text-red-600'
-                  : 'text-gray-600 group-hover:text-gray-800'
-              "
-              aria-hidden="true"
-            />
-          </button>
+            <option
+              v-for="variant in variantsFor(product)"
+              :key="variant.id"
+              :value="variant.id"
+              :disabled="!variant.inStock || variant.price == null"
+            >
+              {{ variant.label }}
+              {{ variant.price != null ? `— ${formatPrice(variant.price)}` : ' — нет' }}
+            </option>
+          </select>
         </div>
 
-        <div class="mt-4 flex flex-col gap-1">
-          <p class="text-lg font-medium text-gray-900">от {{ product.price_2ml }} руб.</p>
-
-          <h3 class="text-base text-gray-700 line-clamp-2 min-h-[3.25rem]">
-            {{ product.name }}
-          </h3>
-
-          <p v-if="product.brand?.name" class="text-sm text-gray-500">
-            {{ product.brand.name }}
-          </p>
-
-          <button
-            type="button"
-            class="cursor-pointer inline-block rounded-md border border-transparent bg-orange-600 py-1 mt-2 text-center font-medium text-white hover:bg-orange-700"
-            @click.prevent="onAddToCart(product, $event)"
+        <!-- Кнопка в корзину -->
+        <button
+          type="button"
+          class="w-full inline-flex items-center justify-center rounded-md border border-transparent bg-orange-600 py-2 mt-2 text-center text-sm font-medium text-white transition-all hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+          :disabled="addingToCart === product.id || !canAddSelected(product)"
+          :aria-label="`Добавить ${product.name} в корзину`"
+          @click.prevent="onAddToCart(product, $event)"
+        >
+          <!-- Индикатор загрузки -->
+          <svg
+            v-if="addingToCart === product.id"
+            class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
           >
-            В корзину
-          </button>
-        </div>
-      </NuxtLink>
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+          <span>{{ addingToCart === product.id ? 'Добавление...' : 'В корзину' }}</span>
+        </button>
+      </article>
     </div>
   </div>
+
+  <!-- Модальное окно быстрого просмотра -->
   <ClientOnly>
     <QuickViewModal
       v-if="quickOpen && quickProduct"
       v-model:open="quickOpen"
       :product="quickProduct"
-      @add-to-cart="(p) => cart.add(p, 1)"
-      @favorite-toggle="(p) => favorites.toggle(p)"
+      @add-to-cart="handleQuickViewAddToCart"
+      @favorite-toggle="handleQuickViewFavoriteToggle"
     />
   </ClientOnly>
 </template>
@@ -90,34 +163,114 @@ import { HeartIcon } from '@heroicons/vue/24/outline'
 import { useFavoritesStore } from '~/stores/favorites'
 import { useCartStore } from '~/stores/cart'
 import { useMounted } from '@vueuse/core'
-import { useState } from '#app'
+import { useState } from 'nuxt/app'
+import { ref } from 'vue'
+import type { BottleVariant } from '~/utils/constants'
 import QuickViewModal from './QuickViewModal.vue'
+import ProductImageSkeleton from './ProductImageSkeleton.vue'
+import {
+  getMinPrice,
+  formatPrice,
+  generateProductAlt,
+  createBottleVariants,
+} from '~/utils/constants'
 
-defineProps<{ products: Product[] }>()
+const props = defineProps<{
+  products: Product[]
+}>()
 
-const favorites = useFavoritesStore()
-const cart = useCartStore()
+const favoritesStore = useFavoritesStore() as ReturnType<typeof useFavoritesStore>
+const cartStore = useCartStore() as ReturnType<typeof useCartStore>
+const isMounted = useMounted()
+const isFavoriteLocal = (id: string) => (favoritesStore as any).isFavorite(id as any)
 
-function onToggleFavorite(p: Product, e: MouseEvent) {
-  e.stopPropagation()
-  favorites.toggle(p)
+// Отслеживание процесса добавления в корзину
+const addingToCart = ref<string | null>(null)
+
+// Выбор варианта по товару
+const selectedByProduct = ref<Record<string, string | null>>({})
+
+function variantsFor(product: Product): BottleVariant[] {
+  return createBottleVariants(product)
 }
 
-function onAddToCart(p: Product, e: MouseEvent) {
-  e.stopPropagation()
-  cart.add(p, 1)
+function getSelectedVariant(product: Product): BottleVariant | null {
+  const current = selectedByProduct.value[product.id]
+  const variants = variantsFor(product)
+  if (!current) {
+    const firstAvailable = variants.find((v) => v.inStock && v.price != null) ?? variants[0]
+    if (firstAvailable) selectedByProduct.value[product.id] = firstAvailable.id
+    return firstAvailable ?? null
+  }
+  return variants.find((v) => v.id === current) ?? null
 }
 
-function productLink(p: Product) {
-  return `/products/${p.id}`
+function canAddSelected(product: Product): boolean {
+  const v = getSelectedVariant(product)
+  return !!v && v.price != null
 }
 
+function selectedPrice(product: Product): string {
+  const v = getSelectedVariant(product)
+  if (v && v.price != null) return formatPrice(v.price)
+  const min = getMinPrice(product)
+  return formatPrice(min)
+}
+function onToggleFavorite(product: Product, event: MouseEvent) {
+  event.stopPropagation()
+  ;(favoritesStore as any).toggle(product)
+}
+
+/**
+ * Добавление в корзину с визуальным feedback
+ */
+async function onAddToCart(product: Product, event: MouseEvent) {
+  event.stopPropagation()
+
+  addingToCart.value = product.id
+
+  try {
+    // Симуляция задержки для UX
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    const variant = getSelectedVariant(product)
+    ;(cartStore as any).add(product, 1, variant)
+  } catch (error) {
+    console.error('[ProductGrid] Failed to add to cart:', error)
+  } finally {
+    addingToCart.value = null
+  }
+}
+
+/**
+ * Генерация ссылки на товар
+ */
+function productLink(product: Product): string {
+  return `/products/${product.id}`
+}
+
+// Состояние быстрого просмотра
 const quickOpen = useState<boolean>('catalog:quickOpen', () => false)
-const quickProduct = useState<Product>('catalog:quickProduct', () => null)
-function openQuickView(p: Product) {
-  quickProduct.value = p
+const quickProduct = useState<Product | null>('catalog:quickProduct', () => null)
+
+/**
+ * Открытие быстрого просмотра
+ */
+function openQuickView(product: Product) {
+  quickProduct.value = product
   quickOpen.value = true
 }
 
-const isMounted = useMounted()
+/**
+ * Обработка добавления в корзину из быстрого просмотра
+ */
+function handleQuickViewAddToCart(payload: { product: Product; variant: BottleVariant }) {
+  ;(cartStore as any).add(payload.product, 1, payload.variant)
+}
+
+/**
+ * Обработка переключения избранного из быстрого просмотра
+ */
+function handleQuickViewFavoriteToggle(product: Product) {
+  ;(favoritesStore as any).toggle(product)
+}
 </script>

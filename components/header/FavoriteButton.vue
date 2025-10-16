@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import { HeartIcon } from '@heroicons/vue/24/outline'
 import { useFavoritesStore } from '~/stores/favorites'
+import { useUiStore } from '~/stores/ui'
+import { computed } from 'vue'
 
 const favorites = useFavoritesStore()
+const ui = useUiStore()
+const count = computed(() => favorites.items.length)
 </script>
 
 <template>
   <div class="ml-4 flow-root lg:ml-6">
-    <NuxtLink to="/favorites" class="group -m-2 flex items-center p-2">
+    <button type="button" class="group -m-2 flex items-center p-2" @click="ui.openFavorites()">
       <HeartIcon
         class="size-6 shrink-0 text-gray-400 group-hover:text-gray-500"
         aria-hidden="true"
@@ -17,9 +21,9 @@ const favorites = useFavoritesStore()
         aria-live="polite"
         role="status"
       >
-        {{ favorites.count }}
+        {{ count }}
       </span>
       <span class="sr-only">Избранные товары</span>
-    </NuxtLink>
+    </button>
   </div>
 </template>

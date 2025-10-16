@@ -1,7 +1,6 @@
 <template>
   <TransitionRoot as="template" :show="open">
-    <Dialog class="relative z-50" @close="emit('update:open', false)">
-      <!-- Backdrop -->
+    <Dialog class="relative z-50" @close="handleClose">
       <TransitionChild
         as="template"
         enter="ease-out duration-200"
@@ -11,7 +10,7 @@
         leave-from="opacity-100"
         leave-to="opacity-0"
       >
-        <div class="fixed inset-0 bg-black/40" />
+        <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" />
       </TransitionChild>
 
       <div class="fixed inset-0 z-50 w-screen overflow-y-auto">
@@ -33,59 +32,81 @@
               <div
                 class="relative flex w-full items-start overflow-hidden rounded-lg bg-white shadow-2xl"
               >
-                <!-- Close -->
+                <!-- ✅ УЛУЧШЕНО: Кнопка закрытия с hover эффектом -->
                 <button
                   type="button"
-                  class="absolute right-3 top-3 inline-flex size-9 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  @click="emit('update:open', false)"
+                  class="absolute right-3 top-3 z-10 inline-flex size-9 items-center justify-center rounded-md bg-white/80 backdrop-blur-sm text-gray-400 transition-colors hover:bg-white hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  aria-label="Закрыть окно быстрого просмотра"
+                  @click="handleClose"
                 >
                   <span class="sr-only">Закрыть</span>
                   <XMarkIcon class="size-6" aria-hidden="true" />
                 </button>
 
                 <div class="grid w-full grid-cols-1 gap-6 p-4 sm:p-6 md:grid-cols-12">
-                  <!-- Image -->
-                  <div class="md:col-span-5">
-                    <NuxtImg
-                      :src="product?.image_path"
-                      :alt="productAlt"
-                      class="aspect-square w-full rounded-md bg-gray-100 object-cover"
-                      :custom="true"
-                      v-slot="{ src, isLoaded, imgAttrs }"
-                    >
-                      <img v-if="isLoaded" v-bind="imgAttrs" :src="src" />
-                      <img v-else src="https://placehold.co/600x600" alt="" />
-                    </NuxtImg>
+                  <div class="md:col-span-5 flex items-center justify-center">
+                    <div class="sticky top-0">
+                      <NuxtImg
+                        v-if="product"
+                        :src="product.image_path"
+                        :alt="generateProductAlt(product.name, product.brand?.name)"
+                        :title="product.name"
+                        class="aspect-square w-full rounded-md bg-gray-100 object-cover"
+                        format="webp"
+                        :modifiers="{ quality: 90 }"
+                      >
+                        <template #placeholder>
+                          <ProductImageSkeleton />
+                        </template>
+                      </NuxtImg>
+                    </div>
                   </div>
 
-                  <!-- Content -->
-                  <div class="md:col-span-7">
-                    <DialogTitle class="text-xl font-semibold text-gray-900">
+                  <div
+                    class="overflow-x-hidden md:col-span-7 overflow-y-auto max-h-[calc(100vh-8rem)]"
+                  >
+                    <DialogTitle class="text-xl font-semibold text-gray-900 pr-8">
                       {{ product?.name }}
                     </DialogTitle>
 
-                    <p v-if="product?.brands?.name" class="mt-1 text-sm text-gray-500">
-                      {{ product.brands.name }}
+                    <p v-if="product?.brand?.name" class="mt-1 text-sm text-gray-500">
+                      {{ product.brand.name }}
                     </p>
 
-                    <!-- Price -->
-                    <div class="mt-4">
+                    <div v-if="product?.profile_tags?.length" class="mt-3 flex flex-wrap gap-1.5">
+                      <span
+                        v-for="tag in product.profile_tags"
+                        :key="tag"
+                        class="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700"
+                      >
+                        {{ tag }}
+                      </span>
+                    </div>
+
+                    <div class="mt-4 rounded-lg bg-gray-50 p-3">
                       <p class="text-2xl font-semibold text-gray-900">
                         {{ formattedPrice }}
                       </p>
                       <p class="mt-1 text-xs text-gray-500">
-                        выбранный объём: {{ selectedVariant?.label }}
+                        Выбранный объём: {{ selectedVariant?.label }}
                       </p>
                     </div>
-                    <div v-if="product?.suits" class="mt-4 text-sm text-gray-600 line-clamp-4">
-                      Кому подойдет: {{ product?.suits }}
+
+                    <div v-if="product?.suits" class="mt-4">
+                      <h4 class="text-sm font-medium text-gray-900">Кому подойдет</h4>
+                      <p class="mt-1 text-sm text-gray-600">{{ product.suits }}</p>
                     </div>
 
-                    <div v-if="product?.occasions" class="mt-4 text-sm text-gray-600 line-clamp-4">
-                      Cитуации: {{ product?.occasions }}
+                    <div v-if="product?.occasions" class="mt-4">
+                      <h4 class="text-sm font-medium text-gray-900">Ситуации</h4>
+                      <p class="mt-1 text-sm text-gray-600">{{ product.occasions }}</p>
                     </div>
 
-                    <!-- Variants (bottle sizes) -->
+                    <div v-if="product?.benefits" class="mt-4">
+                      <h4 class="text-sm font-medium text-gray-900">Преимущества</h4>
+                      <p class="mt-1 text-sm text-gray-600">{{ product.benefits }}</p>
+                    </div>
+
                     <section class="mt-6" aria-labelledby="sizes-heading">
                       <h3 id="sizes-heading" class="text-sm font-medium text-gray-900">
                         Объём флакона
@@ -93,69 +114,119 @@
 
                       <div class="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
                         <label
-                          v-for="v in variants"
-                          :key="v.id"
-                          class="group relative flex cursor-pointer items-center justify-center rounded-md border border-gray-300 bg-white p-2 has-checked:border-indigo-600 has-checked:bg-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+                          v-for="variant in variants"
+                          :key="variant.id"
+                          class="group relative flex cursor-pointer flex-col items-center justify-center rounded-md border border-gray-300 bg-white p-2 transition-all has-checked:border-indigo-600 has-checked:bg-indigo-600 has-checked:shadow-md focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+                          :class="{
+                            'hover:border-indigo-300 hover:shadow-sm': variant.inStock,
+                            'opacity-60': !variant.inStock,
+                          }"
                         >
                           <input
                             class="absolute inset-0 appearance-none"
                             type="radio"
                             name="bottle"
-                            :value="v.id"
-                            :checked="v.id === selectedId"
-                            :disabled="!v.inStock"
-                            @change="selectedId = v.id"
-                            :aria-label="v.label"
+                            :value="variant.id"
+                            :checked="variant.id === selectedId"
+                            :disabled="!variant.inStock"
+                            :aria-label="`Объём ${variant.label}, цена ${variant.price ? formatPrice(variant.price) : 'нет в наличии'}`"
+                            @change="selectedId = variant.id"
                           />
+
+                          <!-- Размер -->
                           <span
-                            class="text-sm font-medium group-has-checked:text-white"
-                            :class="v.inStock ? 'text-gray-900' : 'text-gray-400'"
+                            class="text-sm font-medium transition-colors group-has-checked:text-white"
+                            :class="variant.inStock ? 'text-gray-900' : 'text-gray-400'"
                           >
-                            {{ v.label }}
+                            {{ variant.label }}
                           </span>
+
+                          <!-- Цена -->
                           <span
-                            v-if="v.price !== null"
-                            class="ml-1 text-xs group-has-checked:text-white"
-                            :class="v.inStock ? 'text-gray-500' : 'text-gray-400'"
+                            v-if="variant.price !== null"
+                            class="text-xs transition-colors group-has-checked:text-white/90"
+                            :class="variant.inStock ? 'text-gray-500' : 'text-gray-400'"
                           >
-                            ({{ formatPrice(v.price) }})
+                            {{ formatPrice(variant.price) }}
                           </span>
+
+                          <!-- Нет в наличии -->
                           <span
                             v-else
-                            class="ml-1 text-xs text-gray-400 group-has-checked:text-white"
+                            class="text-xs text-gray-400 group-has-checked:text-white/90"
                           >
-                            нет в наличии
+                            нет
+                          </span>
+
+                          <!-- ✅ ДОБАВЛЕНО: Индикатор выбранного -->
+                          <span
+                            v-if="variant.id === selectedId"
+                            class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-indigo-600 text-white"
+                            aria-hidden="true"
+                          >
+                            <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 12 12">
+                              <path
+                                d="M3.707 5.293a1 1 0 00-1.414 1.414l1.414-1.414zM5 8l-.707.707a1 1 0 001.414 0L5 8zm4.707-3.293a1 1 0 00-1.414-1.414l1.414 1.414zm-7.414 2l2 2 1.414-1.414-2-2-1.414 1.414zm3.414 2l4-4-1.414-1.414-4 4 1.414 1.414z"
+                              />
+                            </svg>
                           </span>
                         </label>
                       </div>
                     </section>
 
-                    <!-- Actions -->
-                    <div class="mt-6 flex gap-2">
+                    <!-- ✅ УЛУЧШЕНО: Actions с визуальным feedback -->
+                    <div
+                      class="mt-6 flex gap-2 sticky bottom-0 bg-white pt-4 border-t border-gray-100"
+                    >
                       <button
                         type="button"
-                        class="cursor-pointer inline-flex flex-1 items-center justify-center rounded-md bg-orange-600 px-4 py-2 text-white font-medium hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                        :disabled="!selectedVariant || selectedVariant.price === null"
-                        @click="onAddToCart"
+                        class="inline-flex flex-1 items-center justify-center rounded-md bg-orange-600 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-600"
+                        :disabled="!canAddToCart || isAddingToCart"
+                        :aria-label="`Добавить ${product?.name} объёмом ${selectedVariant?.label} в корзину`"
+                        @click="handleAddToCart"
                       >
-                        В корзину
+                        <!-- ✅ ДОБАВЛЕНО: Спиннер -->
+                        <svg
+                          v-if="isAddingToCart"
+                          class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <circle
+                            class="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            stroke-width="4"
+                          ></circle>
+                          <path
+                            class="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+
+                        <span>{{ isAddingToCart ? 'Добавление...' : 'В корзину' }}</span>
                       </button>
 
                       <button
                         type="button"
-                        class="inline-flex items-center justify-center rounded-md px-3 py-2 ring-1 ring-inset ring-gray-300 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        @click="emit('favorite-toggle', product!)"
+                        class="inline-flex items-center justify-center rounded-md px-3 py-2 ring-1 ring-inset ring-gray-300 text-gray-700 transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 active:scale-95"
+                        :aria-label="isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'"
+                        :aria-pressed="isFavorite"
+                        @click="handleFavoriteToggle"
                       >
                         <HeartIcon
-                          class="h-6 w-6 cursor-pointer"
-                          :class="
-                            favorites.isFavorite(product.id)
-                              ? 'text-red-600'
-                              : 'text-gray-600 group-hover:text-gray-800'
-                          "
+                          class="h-6 w-6 transition-all"
+                          :class="isFavorite ? 'text-red-600 fill-red-600' : 'text-gray-600'"
                           aria-hidden="true"
                         />
-                        <span class="sr-only">Добавить в избранное</span>
+                        <span class="sr-only">
+                          {{ isFavorite ? 'Убрать из избранного' : 'Добавить в избранное' }}
+                        </span>
                       </button>
                     </div>
                   </div>
@@ -171,107 +242,118 @@
 
 <script setup lang="ts">
 import type { Product } from '~/types/product'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import { XMarkIcon, HeartIcon } from '@heroicons/vue/24/outline'
 import { useFavoritesStore } from '~/stores/favorites'
+import ProductImageSkeleton from './ProductImageSkeleton.vue'
+import {
+  type BottleVariant,
+  createBottleVariants,
+  parseNotes,
+  formatPrice,
+  generateProductAlt,
+} from '~/utils/constants'
 
-type BottleVariant = {
-  id: string // напр. "2ml"
-  ml: number // 2
-  label: string // "2 мл"
-  price: number | null // null => нет цены/нет в наличии
-  inStock: boolean // если надо, иначе derived из price
-}
-
-// props / emits
+// ✅ Props с валидацией
 const props = defineProps<{
   open: boolean
   product: Product | null
 }>()
 
+// ✅ Типизированные emits
 const emit = defineEmits<{
-  (e: 'update:open', v: boolean): void
+  (e: 'update:open', value: boolean): void
   (e: 'add-to-cart', payload: { product: Product; variant: BottleVariant }): void
   (e: 'favorite-toggle', product: Product): void
 }>()
 
-// локальное выбранное значение
+// ✅ Состояние
 const selectedId = ref<string | null>(null)
+const isAddingToCart = ref(false)
 const favorites = useFavoritesStore()
 
-// извлекаем варианты флаконов из продукта
+// ✅ УЛУЧШЕНО: Создание вариантов флаконов без `as any`
 const variants = computed<BottleVariant[]>(() => {
-  const p = props.product as any
-  if (!p) return []
-
-  // здесь маппим известные поля твоего товара -> варианты
-  const candidates: Array<[id: string, ml: number, key: string]> = [
-    ['2ml', 2, 'price_2ml'],
-    ['5ml', 5, 'price_5ml'],
-    ['10ml', 10, 'price_10ml'],
-    ['30ml', 30, 'price_30ml'],
-    ['50ml', 50, 'price_50ml'],
-    ['100ml', 100, 'price_100ml'],
-  ]
-
-  const result: BottleVariant[] = []
-  for (const [id, ml, key] of candidates) {
-    if (key in p) {
-      const price = typeof p[key] === 'number' ? (p[key] as number) : null
-      result.push({
-        id,
-        ml,
-        label: `${ml} мл`,
-        price,
-        inStock: price !== null && price > 0,
-      })
-    }
-  }
-
-  // если вдруг цен нет вообще — вернём хотя бы 2 мл, чтобы кнопка была disabled
-  if (result.length === 0) {
-    result.push({ id: '2ml', ml: 2, label: '2 мл', price: null, inStock: false })
-  }
-  return result
+  if (!props.product) return []
+  return createBottleVariants(props.product)
 })
 
-// выбранный вариант
-const selectedVariant = computed(
-  () => variants.value.find((v) => v.id === selectedId.value) ?? variants.value[0]
+// ✅ Выбранный вариант
+const selectedVariant = computed(() => {
+  return variants.value.find((v) => v.id === selectedId.value) ?? variants.value[0]
+})
+
+// ✅ Форматированная цена
+const formattedPrice = computed(() => {
+  const variant = selectedVariant.value
+  return variant?.price != null ? formatPrice(variant.price) : 'Нет в наличии'
+})
+
+// ✅ Можно ли добавить в корзину
+const canAddToCart = computed(() => {
+  return !!props.product && !!selectedVariant.value && selectedVariant.value.price != null
+})
+
+// ✅ Избранное
+const isFavorite = computed(() => {
+  return props.product ? favorites.isFavorite(props.product.id) : false
+})
+
+watch(
+  () => props.open,
+  (isOpen) => {
+    if (!isOpen) {
+      // Сброс состояния при закрытии
+      isAddingToCart.value = false
+      return
+    }
+
+    // При открытии выбираем первый доступный вариант
+    const firstAvailable = variants.value.find((v) => v.inStock) ?? variants.value[0]
+    selectedId.value = firstAvailable?.id ?? null
+  },
+  { immediate: true }
 )
 
-// при открытии модалки выбираем первый доступный вариант
-watchEffect(() => {
-  if (!props.open) return
-  const firstAvailable = variants.value.find((v) => v.inStock) ?? variants.value[0]
-  selectedId.value = firstAvailable?.id ?? null
-})
+/**
+ * Закрытие модалки
+ */
+function handleClose() {
+  emit('update:open', false)
+}
 
-const productAlt = computed(() => {
-  const p = props.product as any
-  return p?.name ? `Изображение: ${p.name}` : 'Изображение товара'
-})
+/**
+ * Добавление в корзину с визуальным feedback
+ */
+async function handleAddToCart() {
+  if (!canAddToCart.value) return
 
-function formatPrice(n: number) {
+  isAddingToCart.value = true
+
   try {
-    return new Intl.NumberFormat('ru-RU', {
-      style: 'currency',
-      currency: 'RUB',
-      maximumFractionDigits: 0,
-    }).format(n)
-  } catch {
-    return `${n} ₽`
+    // Задержка для UX (опционально)
+    await new Promise((resolve) => setTimeout(resolve, 300))
+
+    emit('add-to-cart', {
+      product: props.product!,
+      variant: selectedVariant.value!,
+    })
+
+    // Закрываем модалку после успешного добавления
+    handleClose()
+  } catch (error) {
+    console.error('[QuickViewModal] Failed to add to cart:', error)
+  } finally {
+    isAddingToCart.value = false
   }
 }
-const formattedPrice = computed(() => {
-  const v = selectedVariant.value
-  return v?.price != null ? formatPrice(v.price) : 'Нет в наличии'
-})
 
-function onAddToCart() {
-  if (!props.product || !selectedVariant.value || selectedVariant.value.price == null) return
-  emit('add-to-cart', { product: props.product, variant: selectedVariant.value })
-  emit('update:open', false)
+/**
+ * Переключение избранного
+ */
+function handleFavoriteToggle() {
+  if (!props.product) return
+  emit('favorite-toggle', props.product)
 }
 </script>

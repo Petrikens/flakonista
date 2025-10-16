@@ -2,7 +2,7 @@
   <div class="bg-white">
     <MobileMenu :navigation="navigation" v-model:open="open" />
     <header class="relative bg-white">
-      <nav aria-label="Top" class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <nav aria-label="Top" class="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8">
         <div class="border-b border-gray-200">
           <div class="flex h-16 items-center">
             <button
@@ -178,8 +178,9 @@ const navigation = {
     },
   ],
   pages: [
-    { name: 'Мужчинам', href: '/men' },
-    { name: 'Женщинам', href: '/women' },
+    { name: 'Каталог', href: '/catalog' },
+    { name: 'Мужчинам', href: '/catalog/men' },
+    { name: 'Женщинам', href: '/catalog/women' },
   ],
 }
 

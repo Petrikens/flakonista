@@ -29,3 +29,7 @@ export const PROFILE_TAGS = [
   'Минеральный',
   'Молочный',
 ] as const
+
+export type ProfileTag = (typeof PROFILE_TAGS)[number]
+
+export type SeasonValue = (typeof SEASONS)[number]['value']

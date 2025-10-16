@@ -1,11 +1,11 @@
 import { reactive, computed } from 'vue'
-import { useState } from '#app'
+import { useState } from 'nuxt/app'
 import { watchDebounced } from '@vueuse/core'
 import type { Product, Brand, Gender, SeasonGroup } from '~/types/product'
 import type { SortOption, FilterSection, FilterOption } from '~/types/catalog'
+import type { ProductsListResponse } from '~/types/api' // ✅ ДОБАВЛЕНО
 import { SEASONS, PROFILE_TAGS } from '~/utils/catalog'
 import { useApi } from './useApi'
-import { useCatalogStore } from '~/stores/catalog'
 
 interface UseInfiniteProductsOptions {
   genders: Gender[]
@@ -13,49 +13,48 @@ interface UseInfiniteProductsOptions {
   initialStateKey?: string
 }
 
-/**
- * Бесконечная витрина с фильтрами/сортировкой:
- * - защита от гонок запросов
- * - дебаунс перезапросов на изменение фильтров/сорта/перПэйджа
- * - раздельные флаги загрузки: initialLoading / isLoadingMore / isLoadingBrands
- * - "узкие" фильтры генерятся из selected (без ручной синхронизации checked)
- */
+// ✅ ДОБАВЛЕНО: Типизация query параметров
+interface ProductsQueryParams {
+  genders: string
+  sort: 'newest' | 'price_asc' | 'price_desc'
+  page: number
+  perPage: number
+  brands?: string
+  season?: SeasonGroup
+  profileAny?: string
+}
 export const useInfiniteProducts = (opts: UseInfiniteProductsOptions) => {
   // Нормализуем ключ (на случай разного порядка полов)
   const keySuffix = [...opts.genders].sort().join(',')
 
-  // Состояние витрины
-  const products = useState<Product[]>('catalog:products:' + keySuffix, () => [])
-  const total = useState<number>('catalog:total:' + keySuffix, () => 0)
-
-  const page = useState<number>('catalog:page:' + keySuffix, () => 1)
-  const perPage = useState<number>('catalog:per:' + keySuffix, () => opts.pageSize ?? 20)
+  // ✅ УЛУЧШЕНО: Явная типизация всех useState
+  const products = useState<Product[]>(`catalog:products:${keySuffix}`, () => [])
+  const total = useState<number>(`catalog:total:${keySuffix}`, () => 0)
+  const page = useState<number>(`catalog:page:${keySuffix}`, () => 1)
+  const perPage = useState<number>(`catalog:per:${keySuffix}`, () => opts.pageSize ?? 20)
 
   // Флаги загрузки
-  const initialLoading = useState<boolean>('catalog:initialLoading:' + keySuffix, () => true)
-  const isLoadingMore = useState<boolean>('catalog:loadingMore:' + keySuffix, () => false)
-  const isLoadingBrands = useState<boolean>('catalog:loadingBrands:' + keySuffix, () => false)
-
-  const error = useState<string | null>('catalog:error:' + keySuffix, () => null)
-
-  const catalog = useCatalogStore()
+  const initialLoading = useState<boolean>(`catalog:initialLoading:${keySuffix}`, () => true)
+  const isLoadingMore = useState<boolean>(`catalog:loadingMore:${keySuffix}`, () => false)
+  const isLoadingBrands = useState<boolean>(`catalog:loadingBrands:${keySuffix}`, () => false)
+  const error = useState<string | null>(`catalog:error:${keySuffix}`, () => null)
 
   // Выбранные фильтры
   const selected = reactive({
-    brandIds: [] as string[], // множественный
-    season: '' as '' | SeasonGroup, // одиночный (radio)
-    profileAny: [] as string[], // множественный
+    brandIds: [] as string[],
+    season: '' as '' | SeasonGroup,
+    profileAny: [] as string[],
   })
 
   // Бренды подгружаются с сервера и кешируются
-  const brandOptionsRaw = useState<FilterOption[]>('catalog:brands:' + keySuffix, () => [])
+  const brandOptionsRaw = useState<FilterOption[]>(`catalog:brands:${keySuffix}`, () => [])
 
   // Визуальный список фильтров: генерим опции из selected (чтобы не мутировать checked вручную)
   const filters = computed<FilterSection[]>(() => [
     {
       id: 'brand',
       name: 'Брэнд',
-      options: brandOptionsRaw.value.map((b) => ({
+      options: brandOptionsRaw.value.map((b: FilterOption) => ({
         ...b,
         checked: selected.brandIds.includes(String(b.value)),
       })),
@@ -86,7 +85,7 @@ export const useInfiniteProducts = (opts: UseInfiniteProductsOptions) => {
     { name: 'Сначала дешевые' },
     { name: 'Сначала дорогие' },
   ]
-  const selectedSort = useState<SortOption>('catalog:sort:' + keySuffix, () => sortOptions[0])
+  const selectedSort = useState<SortOption>(`catalog:sort:${keySuffix}`, () => sortOptions[0])
 
   const orderSpec = computed(() => {
     switch (selectedSort.value.name) {
@@ -107,7 +106,7 @@ export const useInfiniteProducts = (opts: UseInfiniteProductsOptions) => {
 
   // SSR начальное состояние (если передали)
   if (opts.initialStateKey) {
-    const initial = useState<any>(opts.initialStateKey, () => null)
+    const initial = useState<ProductsListResponse | null>(opts.initialStateKey, () => null) // ✅ ТИПИЗАЦИЯ
     if (process.server && initial.value?.items && products.value.length === 0) {
       products.value = initial.value.items
       total.value = initial.value.count ?? 0
@@ -118,16 +117,19 @@ export const useInfiniteProducts = (opts: UseInfiniteProductsOptions) => {
     }
   }
 
-  function buildQueryParams(extra?: { page?: number }) {
-    const q: Record<string, any> = {
+  // ✅ УЛУЧШЕНО: Типизация возвращаемого объекта
+  function buildQueryParams(extra?: { page?: number }): ProductsQueryParams {
+    const q: ProductsQueryParams = {
       genders: opts.genders.join(','),
       sort: orderSpec.value.sort,
       page: extra?.page ?? page.value,
       perPage: perPage.value,
     }
+
     if (selected.brandIds.length) q.brands = selected.brandIds.join(',')
     if (selected.season) q.season = selected.season
     if (selected.profileAny.length) q.profileAny = selected.profileAny.join(',')
+
     return q
   }
 
@@ -142,6 +144,8 @@ export const useInfiniteProducts = (opts: UseInfiniteProductsOptions) => {
         checked: false,
       }))
     } catch (e: any) {
+      // ✅ УЛУЧШЕНО: Логирование ошибки
+      console.error('[useInfiniteProducts] Failed to load brands:', e?.message)
     } finally {
       isLoadingBrands.value = false
     }
@@ -161,29 +165,48 @@ export const useInfiniteProducts = (opts: UseInfiniteProductsOptions) => {
 
     try {
       error.value = null
-      const res = await api.get<{ items: Product[]; count: number; page: number; perPage: number }>(
-        '/api/products',
-        buildQueryParams()
-      )
 
+      // ✅ ТИПИЗАЦИЯ: Явно указываем тип ответа
+      const res = await api.get<ProductsListResponse>('/api/products', buildQueryParams())
+
+      // Защита от race condition
       if (myId !== reqId) return
 
       if (typeof res.count === 'number') total.value = res.count
       const incoming = res.items ?? []
-      catalog.updateProductsCatalog(incoming)
-      products.value = reset ? incoming : [...products.value, ...incoming]
+
+      // Deduplicate by product id to avoid duplicates on pagination or server quirks
+      if (reset) {
+        products.value = incoming
+      } else {
+        const byId = new Map<string, Product>()
+        for (const p of products.value) byId.set(p.id, p)
+        for (const p of incoming) byId.set(p.id, p)
+        products.value = Array.from(byId.values())
+      }
 
       if (incoming.length === perPage.value) {
         page.value = (res.page ?? page.value) + 1
       }
     } catch (e: any) {
-      if (myId === reqId) error.value = e?.message ?? 'Не удалось загрузить товары'
+      if (myId === reqId) {
+        error.value = e?.message ?? 'Не удалось загрузить товары'
+        // ✅ УЛУЧШЕНО: Логирование ошибки
+        console.error('[useInfiniteProducts] Failed to fetch products:', e)
+      }
     } finally {
       if (myId === reqId) {
         if (reset) initialLoading.value = false
         else isLoadingMore.value = false
       }
     }
+  }
+
+  function loadNextPage() {
+    if (!hasNext.value) return
+    if (isLoadingMore.value || initialLoading.value) return
+    if (error.value) error.value = null
+    fetchProducts()
   }
 
   function resetFilters() {

@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { ShoppingBagIcon } from '@heroicons/vue/24/outline'
 import { useCartStore } from '~/stores/cart'
+import { useUiStore } from '~/stores/ui'
 
 const cart = useCartStore()
+const ui = useUiStore()
 </script>
 
 <template>
   <div class="ml-4 flow-root lg:ml-6">
-    <NuxtLink to="/cart" class="group -m-2 flex items-center p-2">
+    <button type="button" class="group -m-2 flex items-center p-2" @click="ui.openCart()">
       <ShoppingBagIcon
         class="size-6 shrink-0 text-gray-400 group-hover:text-gray-500"
         aria-hidden="true"
@@ -20,6 +22,6 @@ const cart = useCartStore()
         {{ cart.count }}
       </span>
       <span class="sr-only">Товары в корзине, открыть корзину</span>
-    </NuxtLink>
+    </button>
   </div>
 </template>

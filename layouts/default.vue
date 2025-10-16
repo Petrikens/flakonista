@@ -16,10 +16,15 @@
     </main>
 
     <Footer />
+    <!-- Global drawers -->
+    <CartDrawer />
+    <FavoritesDrawer />
   </div>
 </template>
 
 <script setup lang="ts">
 import Header from '@/components/header/Header.vue'
 import Footer from '@/components/Footer.vue'
+import CartDrawer from '@/components/CartDrawer.vue'
+import FavoritesDrawer from '@/components/FavoritesDrawer.vue'
 </script>
