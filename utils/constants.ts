@@ -35,9 +35,6 @@ export function getMinPrice(product: {
   return prices.length > 0 ? Math.min(...prices) : CONSTANTS.MIN_DISPLAY_PRICE
 }
 
-/**
- * Форматировать цену с валютой
- */
 export function formatPrice(price: number): string {
   return new Intl.NumberFormat('ru-RU', {
     style: 'currency',
