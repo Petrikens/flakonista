@@ -1,0 +1,11 @@
+{
+  "buildCommand": "nuxt build",
+  "outputDirectory": ".output/public",
+  "framework": "nuxtjs",
+  "regions": ["fra1"],
+  "functions": {
+    "server/api/*.ts": {
+      "maxDuration": 10
+    }
+  }
+}

@@ -166,16 +166,13 @@ export const useInfiniteProducts = (opts: UseInfiniteProductsOptions) => {
     try {
       error.value = null
 
-      // ✅ ТИПИЗАЦИЯ: Явно указываем тип ответа
       const res = await api.get<ProductsListResponse>('/api/products', buildQueryParams())
 
-      // Защита от race condition
       if (myId !== reqId) return
 
       if (typeof res.count === 'number') total.value = res.count
       const incoming = res.items ?? []
 
-      // Deduplicate by product id to avoid duplicates on pagination or server quirks
       if (reset) {
         products.value = incoming
       } else {
