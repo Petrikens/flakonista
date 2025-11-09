@@ -23,6 +23,7 @@ function removeItem(id: number | string, variantId: string | null) {
 
 function goToCheckout() {
   ui.enableCheckoutOnce()
+  ui.closeCart()
   router.push('/checkout')
 }
 </script>

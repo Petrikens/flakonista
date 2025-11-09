@@ -5,7 +5,7 @@
       <p class="text-lg">Товары не найдены</p>
     </div>
 
-    <div v-else class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+    <div v-else class="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 lg:grid-cols-4 xl:gap-x-8">
       <article
         v-for="product in products"
         :key="product.id"
@@ -163,7 +163,6 @@ import { HeartIcon } from '@heroicons/vue/24/outline'
 import { useFavoritesStore } from '~/stores/favorites'
 import { useCartStore } from '~/stores/cart'
 import { useMounted } from '@vueuse/core'
-import { useState } from 'nuxt/app'
 import { ref } from 'vue'
 import type { BottleVariant } from '~/utils/constants'
 import QuickViewModal from './QuickViewModal.vue'
@@ -248,9 +247,9 @@ function productLink(product: Product): string {
   return `/products/${product.id}`
 }
 
-// Состояние быстрого просмотра
-const quickOpen = useState<boolean>('catalog:quickOpen', () => false)
-const quickProduct = useState<Product | null>('catalog:quickProduct', () => null)
+// Состояние быстрого просмотра (локальное, не сохраняется при навигации)
+const quickOpen = ref<boolean>(false)
+const quickProduct = ref<Product | null>(null)
 
 /**
  * Открытие быстрого просмотра

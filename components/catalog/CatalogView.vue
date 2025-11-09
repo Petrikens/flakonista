@@ -95,18 +95,12 @@ const mobileFiltersOpen = ref(false)
 
 const {
   products,
-  total,
   hasNext,
-  isEmpty,
-  error,
-
   initialLoading,
   isLoadingMore,
-
   filters,
   sortOptions,
   selectedSort,
-
   fetchProducts,
   resetFilters,
   onSortSelect,

@@ -48,10 +48,20 @@ export const useApi = (config: UseApiConfig = {}) => {
     }
   }
 
+  type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+
   async function doFetch<T = unknown>(
-    method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+    method: HTTPMethod,
     url: string,
-    { query, body, timeout: to, cancelPrevious = method === 'GET', ...opts }: RequestOptions = {}
+    {
+      query,
+      body,
+      timeout: to,
+      cancelPrevious = method === 'GET',
+      // prevent overriding our method via options
+      method: _ignored,
+      ...opts
+    }: RequestOptions = {}
   ): Promise<T> {
     if (cancelPrevious && controller) controller.abort()
 
@@ -63,7 +73,7 @@ export const useApi = (config: UseApiConfig = {}) => {
     const signal = controller.signal
 
     try {
-      const res = await $fetch(url, {
+      const res = await $fetch<T>(url, {
         baseURL,
         method,
         query: defaultQuery ? { ...defaultQuery, ...query } : query,
@@ -74,14 +84,16 @@ export const useApi = (config: UseApiConfig = {}) => {
         retryDelay,
         ...opts,
       })
-      return res as T
+      return res
     } catch (e: any) {
-      status.value = e?.status || e?.response?.status || null
-      error.value =
-        e?.data?.statusMessage ||
-        e?.response?._data?.statusMessage ||
-        e?.message ||
-        'Request failed'
+      // Normalize common $fetch error shapes
+      status.value = e?.status ?? e?.response?.status ?? null
+      const statusMessage =
+        e?.data?.statusMessage ??
+        e?.response?._data?.statusMessage ??
+        e?.response?._data?.message ??
+        e?.message
+      error.value = statusMessage || 'Request failed'
       throw e
     } finally {
       cleanupSignal()

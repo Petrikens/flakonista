@@ -19,7 +19,7 @@ const ui = useUiStore()
         aria-live="polite"
         role="status"
       >
-        {{ cart.count }}
+        <ClientOnly fallback="0">{{ cart.count }}</ClientOnly>
       </span>
       <span class="sr-only">Товары в корзине, открыть корзину</span>
     </button>

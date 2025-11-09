@@ -21,7 +21,7 @@ const count = computed(() => favorites.items.length)
         aria-live="polite"
         role="status"
       >
-        {{ count }}
+        <ClientOnly fallback="0">{{ count }}</ClientOnly>
       </span>
       <span class="sr-only">Избранные товары</span>
     </button>
