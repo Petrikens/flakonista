@@ -50,11 +50,14 @@ useHead({
 })
 
 // Структурированные данные для хлебных крошек
-const breadcrumbData = useBreadcrumbStructuredData([
-  { name: 'Главная', url: '/' },
-  { name: 'Каталог', url: '/catalog' },
-  { name: 'Женщинам', url: '/catalog/women' },
-])
+const breadcrumbData = useBreadcrumbStructuredData(
+  [
+    { name: 'Главная', url: '/' },
+    { name: 'Каталог', url: '/catalog' },
+    { name: 'Женщинам', url: '/catalog/women' },
+  ],
+  baseUrl
+)
 
 useHead({
   script: [

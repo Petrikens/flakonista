@@ -435,20 +435,34 @@ useHead({
   ],
 })
 
+// ✅ Каталог ссылки и названия (определены до использования в breadcrumbData)
+const catalogLink = computed(() => {
+  if (!product.value?.gender) return '/catalog/men'
+  return product.value.gender === 'women' ? '/catalog/women' : '/catalog/men'
+})
+
+const catalogName = computed(() => {
+  if (!product.value?.gender) return 'Каталог'
+  return product.value.gender === 'women' ? 'Женщинам' : 'Мужчинам'
+})
+
 // Структурированные данные для продукта
 const productStructuredData = computed(() => {
   if (!product.value) return null
-  return useProductStructuredData(product.value)
+  return useProductStructuredData(product.value, baseUrl)
 })
 
 // Структурированные данные для хлебных крошек
 const breadcrumbData = computed(() => {
   if (!product.value) return null
-  return useBreadcrumbStructuredData([
-    { name: 'Главная', url: '/' },
-    { name: catalogName.value, url: catalogLink.value },
-    { name: product.value.name, url: `/products/${product.value.id}` },
-  ])
+  return useBreadcrumbStructuredData(
+    [
+      { name: 'Главная', url: '/' },
+      { name: catalogName.value, url: catalogLink.value },
+      { name: product.value.name, url: `/products/${product.value.id}` },
+    ],
+    baseUrl
+  )
 })
 
 watch(
@@ -507,16 +521,6 @@ const canAddToCart = computed(() => {
 
 const isFavorite = computed(() => {
   return product.value ? favorites.isFavorite(product.value.id) : false
-})
-
-const catalogLink = computed(() => {
-  if (!product.value?.gender) return '/catalog/men'
-  return product.value.gender === 'women' ? '/catalog/women' : '/catalog/men'
-})
-
-const catalogName = computed(() => {
-  if (!product.value?.gender) return 'Каталог'
-  return product.value.gender === 'women' ? 'Женщинам' : 'Мужчинам'
 })
 
 const topNotes = computed(() => parseNotes(product.value?.top_notes ?? null))

@@ -89,8 +89,8 @@ useHead({
 })
 
 // Структурированные данные
-const organizationData = useOrganizationStructuredData()
-const websiteData = useWebSiteStructuredData()
+const organizationData = useOrganizationStructuredData(baseUrl)
+const websiteData = useWebSiteStructuredData(baseUrl)
 
 useHead({
   script: [

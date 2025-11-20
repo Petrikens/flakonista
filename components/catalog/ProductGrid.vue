@@ -257,34 +257,47 @@ function handleImageMouseLeave(product: Product) {
 }
 
 function handleImageMouseMove(product: Product, event: MouseEvent) {
-  const images = validImages(product)
-  if (!images.length) return
+  try {
+    const images = validImages(product)
+    if (!images.length) return
 
-  const target = event.currentTarget as HTMLElement | null
-  if (!target) return
-  const rect = target.getBoundingClientRect()
-  if (rect.width === 0) return
+    const target = event.currentTarget as HTMLElement | null
+    if (!target) return
+    const rect = target.getBoundingClientRect()
+    if (rect.width === 0) return
 
-  const relativeX = event.clientX - rect.left
-  const ratio = Math.min(Math.max(relativeX / rect.width, 0), 0.9999)
-  const nextIndex = Math.min(images.length - 1, Math.floor(ratio * images.length))
+    const relativeX = event.clientX - rect.left
+    const ratio = Math.min(Math.max(relativeX / rect.width, 0), 0.9999)
+    const nextIndex = Math.min(images.length - 1, Math.floor(ratio * images.length))
 
-  hoverImageIndex.value[product.id] = nextIndex
+    if (nextIndex >= 0 && nextIndex < images.length) {
+      hoverImageIndex.value[product.id] = nextIndex
+    }
+  } catch (error) {
+    // Игнорируем ошибки при обработке движения мыши
+    console.debug('[ProductGrid] Error in handleImageMouseMove:', error)
+  }
 }
 
 function handleImageError(product: Product, src: string | null) {
-  if (!src) return
-  const broken = brokenImagesByProduct.value[product.id] ?? []
-  if (broken.includes(src)) return
-  brokenImagesByProduct.value = {
-    ...brokenImagesByProduct.value,
-    [product.id]: [...broken, src],
-  }
+  try {
+    if (!src) return
+    const broken = brokenImagesByProduct.value[product.id] ?? []
+    if (broken.includes(src)) return
 
-  const images = validImages(product)
-  if (!(product.id in hoverImageIndex.value)) return
-  if (!images.length || hoverImageIndex.value[product.id] >= images.length) {
-    hoverImageIndex.value[product.id] = 0
+    brokenImagesByProduct.value = {
+      ...brokenImagesByProduct.value,
+      [product.id]: [...broken, src],
+    }
+
+    const images = validImages(product)
+    if (!(product.id in hoverImageIndex.value)) return
+    if (!images.length || hoverImageIndex.value[product.id] >= images.length) {
+      hoverImageIndex.value[product.id] = 0
+    }
+  } catch (error) {
+    // Игнорируем ошибки при обработке ошибок изображений
+    console.debug('[ProductGrid] Error in handleImageError:', error)
   }
 }
 

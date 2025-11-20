@@ -5,26 +5,33 @@ import { getMinPrice } from '~/utils/constants'
  * Получить базовый URL сайта
  */
 function getBaseUrl(): string {
-  if (import.meta.server) {
-    const config = useRuntimeConfig()
-    return config.public.siteUrl || 'https://flakonista.by'
+  try {
+    if (import.meta.server) {
+      const config = useRuntimeConfig()
+      return config.public.siteUrl || 'https://flakonista.by'
+    }
+    if (typeof window !== 'undefined') {
+      return window.location.origin
+    }
+  } catch {
+    // Fallback если useRuntimeConfig недоступен
   }
-  return window.location.origin
+  return 'https://flakonista.by'
 }
 
 /**
  * Генерация структурированных данных для организации
  */
-export function useOrganizationStructuredData() {
-  const baseUrl = getBaseUrl()
+export function useOrganizationStructuredData(baseUrl?: string) {
+  const url = baseUrl || getBaseUrl()
 
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'Flakonista',
     description: 'Премиальная парфюмерия с доставкой по Беларуси',
-    url: baseUrl,
-    logo: `${baseUrl}/images/logo.png`,
+    url,
+    logo: `${url}/images/logo.png`,
     sameAs: [
       // Добавьте ссылки на социальные сети, если есть
     ],
@@ -39,12 +46,12 @@ export function useOrganizationStructuredData() {
 /**
  * Генерация структурированных данных для товара (Product)
  */
-export function useProductStructuredData(product: Product) {
-  const baseUrl = getBaseUrl()
-  const productUrl = `${baseUrl}/products/${product.id}`
+export function useProductStructuredData(product: Product, baseUrl?: string) {
+  const url = baseUrl || getBaseUrl()
+  const productUrl = `${url}/products/${product.id}`
   const minPrice = getMinPrice(product)
   const images = product.image_path?.filter(Boolean) || []
-  const imageUrls = images.map((img) => (img.startsWith('http') ? img : `${baseUrl}${img}`))
+  const imageUrls = images.map((img) => (img.startsWith('http') ? img : `${url}${img}`))
 
   const offers: Array<{
     '@type': string
@@ -200,8 +207,11 @@ export function useProductStructuredData(product: Product) {
 /**
  * Генерация структурированных данных для хлебных крошек (BreadcrumbList)
  */
-export function useBreadcrumbStructuredData(items: Array<{ name: string; url: string }>) {
-  const baseUrl = getBaseUrl()
+export function useBreadcrumbStructuredData(
+  items: Array<{ name: string; url: string }>,
+  baseUrl?: string
+) {
+  const url = baseUrl || getBaseUrl()
 
   return {
     '@context': 'https://schema.org',
@@ -210,7 +220,7 @@ export function useBreadcrumbStructuredData(items: Array<{ name: string; url: st
       '@type': 'ListItem',
       position: index + 1,
       name: item.name,
-      item: item.url.startsWith('http') ? item.url : `${baseUrl}${item.url}`,
+      item: item.url.startsWith('http') ? item.url : `${url}${item.url}`,
     })),
   }
 }
@@ -218,20 +228,20 @@ export function useBreadcrumbStructuredData(items: Array<{ name: string; url: st
 /**
  * Генерация структурированных данных для веб-сайта
  */
-export function useWebSiteStructuredData() {
-  const baseUrl = getBaseUrl()
+export function useWebSiteStructuredData(baseUrl?: string) {
+  const url = baseUrl || getBaseUrl()
 
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'Flakonista',
     description: 'Премиальная парфюмерия с доставкой по Беларуси',
-    url: baseUrl,
+    url,
     potentialAction: {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: `${baseUrl}/catalog?search={search_term_string}`,
+        urlTemplate: `${url}/catalog?search={search_term_string}`,
       },
       'query-input': 'required name=search_term_string',
     },
