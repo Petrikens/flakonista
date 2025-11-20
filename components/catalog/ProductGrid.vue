@@ -19,7 +19,7 @@
         >
           <div class="relative">
             <NuxtImg
-              :src="product.image_path"
+              :src="product.image_path[0]"
               :alt="generateProductAlt(product.name, product.brand?.name)"
               :title="product.name"
               class="aspect-square w-full rounded-lg bg-gray-200 object-cover transition-opacity duration-200 group-hover:opacity-75 lg:aspect-auto lg:h-80"
@@ -160,13 +160,8 @@
 <script setup lang="ts">
 import type { Product } from '~/types/product'
 import { HeartIcon } from '@heroicons/vue/24/outline'
-import { useFavoritesStore } from '~/stores/favorites'
-import { useCartStore } from '~/stores/cart'
 import { useMounted } from '@vueuse/core'
-import { ref } from 'vue'
 import type { BottleVariant } from '~/utils/constants'
-import QuickViewModal from './QuickViewModal.vue'
-import ProductImageSkeleton from './ProductImageSkeleton.vue'
 import {
   getMinPrice,
   formatPrice,

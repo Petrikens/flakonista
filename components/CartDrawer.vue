@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import Drawer from '~/components/Drawer.vue'
-import { useUiStore } from '~/stores/ui'
-import { useCartStore } from '~/stores/cart'
-import { computed } from 'vue'
 import { getMinPrice, formatPrice, generateProductAlt, CONSTANTS } from '~/utils/constants'
-import { useRouter } from 'vue-router'
 
 const ui = useUiStore()
 const cart = useCartStore()
@@ -44,7 +39,7 @@ function goToCheckout() {
             @click="ui.closeCart(), ui.closeFavorites()"
           >
             <img
-              :src="item.product.image_path || CONSTANTS.PRODUCT_IMAGE_PLACEHOLDER"
+              :src="item.product.image_path[0] || CONSTANTS.PRODUCT_IMAGE_PLACEHOLDER"
               :alt="
                 generateProductAlt(
                   item.product.name,

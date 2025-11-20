@@ -10,6 +10,7 @@ module.exports = {
         ecmaVersion: 2022,
         sourceType: 'module',
         project: ['./tsconfig.json'],
+        extraFileExtensions: ['.vue'],
     },
     extends: [
         'eslint:recommended',
@@ -22,7 +23,12 @@ module.exports = {
     plugins: ['vue', '@typescript-eslint', 'prettier'],
     rules: {
         'prettier/prettier': 'error',
-        'vue/multi-word-component-names': 'off', // отключаем если используешь односоставные имена
-        '@typescript-eslint/no-unused-vars': 'warn',
+        'vue/multi-word-component-names': 'off',
+        '@typescript-eslint/no-unused-vars': ['warn', {
+            argsIgnorePattern: '^_',
+            varsIgnorePattern: '^_',
+            caughtErrorsIgnorePattern: '^_'
+        }],
+        'no-undef': 'off', // Отключаем, так как Nuxt автоимпорты обрабатываются через TypeScript
     },
 }

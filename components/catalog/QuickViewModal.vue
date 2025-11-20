@@ -48,7 +48,7 @@
                     <div class="sticky top-0">
                       <NuxtImg
                         v-if="product"
-                        :src="product.image_path"
+                        :src="product.image_path[0]"
                         :alt="generateProductAlt(product.name, product.brand?.name)"
                         :title="product.name"
                         class="aspect-square w-full rounded-md bg-gray-100 object-cover"
@@ -242,11 +242,8 @@
 
 <script setup lang="ts">
 import type { Product } from '~/types/product'
-import { computed, ref, watch } from 'vue'
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import { XMarkIcon, HeartIcon } from '@heroicons/vue/24/outline'
-import { useFavoritesStore } from '~/stores/favorites'
-import ProductImageSkeleton from './ProductImageSkeleton.vue'
 import {
   type BottleVariant,
   createBottleVariants,

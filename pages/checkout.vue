@@ -1,10 +1,6 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
 import { z } from 'zod'
-import { useCartStore } from '~/stores/cart'
-import { useUiStore } from '~/stores/ui'
 import { getMinPrice, formatPrice, generateProductAlt, CONSTANTS } from '~/utils/constants'
-import { useRouter } from 'vue-router'
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import {
   CheckCircleIcon,

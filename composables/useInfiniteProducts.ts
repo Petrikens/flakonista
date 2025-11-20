@@ -1,11 +1,8 @@
-import { reactive, computed, ref } from 'vue'
-import { useState, useNuxtApp } from 'nuxt/app'
 import { watchDebounced } from '@vueuse/core'
 import type { Product, Brand, Gender, SeasonGroup } from '~/types/product'
 import type { SortOption, FilterSection, FilterOption } from '~/types/catalog'
 import type { ProductsListResponse } from '~/types/api'
 import { SEASONS, PROFILE_TAGS } from '~/utils/catalog'
-import { useApi } from './useApi'
 
 interface UseInfiniteProductsOptions {
   genders: Gender[]
@@ -284,6 +281,7 @@ export const useInfiniteProducts = (opts: UseInfiniteProductsOptions) => {
     orderSpec,
 
     fetchProducts,
+    loadNextPage,
     resetFilters,
     loadBrands,
     onSortSelect,

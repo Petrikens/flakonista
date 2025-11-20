@@ -1,8 +1,5 @@
 <script setup lang="ts">
 import { HeartIcon } from '@heroicons/vue/24/outline'
-import { useFavoritesStore } from '~/stores/favorites'
-import { useUiStore } from '~/stores/ui'
-import { computed } from 'vue'
 
 const favorites = useFavoritesStore()
 const ui = useUiStore()

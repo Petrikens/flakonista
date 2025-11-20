@@ -1,5 +1,4 @@
 import type { FetchOptions } from 'ofetch'
-import { ref } from 'vue'
 
 type Query = Record<string, any>
 

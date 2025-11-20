@@ -12,6 +12,12 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxt/image',
   ],
+  components: [
+    {
+      path: '~/components',
+      pathPrefix: false,
+    },
+  ],
   app: {
     head: {
       title: 'Flakonista - Магазин парфюмерии',

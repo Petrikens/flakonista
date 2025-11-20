@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { ShoppingBagIcon } from '@heroicons/vue/24/outline'
-import { useCartStore } from '~/stores/cart'
-import { useUiStore } from '~/stores/ui'
 
 const cart = useCartStore()
 const ui = useUiStore()

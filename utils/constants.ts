@@ -11,26 +11,47 @@ export const CONSTANTS = {
   MIN_DISPLAY_PRICE: 0,
 
   // Приоритет цен для отображения (от меньшего к большему объему)
-  PRICE_PRIORITY: ['price_2ml', 'price_5ml', 'price_10ml', 'price_20ml', 'price_100ml'] as const,
+  PRICE_PRIORITY: [
+    'price_3ml',
+    'price_5ml',
+    'price_10ml',
+    'price_15ml',
+    'price_60ml',
+    'price_70ml',
+    'price_80ml',
+    'price_90ml',
+    'price_100ml',
+    'price_105ml',
+  ] as const,
 } as const
 
 /**
  * Получить минимальную доступную цену товара
  */
 export function getMinPrice(product: {
-  price_2ml: number | null
-  price_5ml: number | null
-  price_10ml: number | null
-  price_20ml: number | null
-  price_100ml: number | null
+  price_3ml?: number | null | undefined
+  price_5ml?: number | null | undefined
+  price_10ml?: number | null | undefined
+  price_15ml?: number | null | undefined
+  price_60ml?: number | null | undefined
+  price_70ml?: number | null | undefined
+  price_80ml?: number | null | undefined
+  price_90ml?: number | null | undefined
+  price_100ml?: number | null | undefined
+  price_105ml?: number | null | undefined
 }): number {
   const prices = [
-    product.price_2ml,
-    product.price_5ml,
-    product.price_10ml,
-    product.price_20ml,
-    product.price_100ml,
-  ].filter((price): price is number => price !== null && price > 0)
+    product?.price_3ml,
+    product?.price_5ml,
+    product?.price_10ml,
+    product?.price_15ml,
+    product?.price_60ml,
+    product?.price_70ml,
+    product?.price_80ml,
+    product?.price_90ml,
+    product?.price_100ml,
+    product?.price_105ml,
+  ].filter((price): price is number => price !== null && price !== undefined && price > 0)
 
   return prices.length > 0 ? Math.min(...prices) : CONSTANTS.MIN_DISPLAY_PRICE
 }
@@ -54,11 +75,16 @@ export function generateProductAlt(productName: string, brandName?: string): str
 }
 
 export const BOTTLE_SIZES = [
-  { id: '2ml', ml: 2, key: 'price_2ml' },
+  { id: '3ml', ml: 3, key: 'price_3ml' },
   { id: '5ml', ml: 5, key: 'price_5ml' },
   { id: '10ml', ml: 10, key: 'price_10ml' },
-  { id: '20ml', ml: 20, key: 'price_20ml' },
+  { id: '15ml', ml: 15, key: 'price_15ml' },
+  { id: '60ml', ml: 60, key: 'price_60ml' },
+  { id: '70ml', ml: 70, key: 'price_70ml' },
+  { id: '80ml', ml: 80, key: 'price_80ml' },
+  { id: '90ml', ml: 90, key: 'price_90ml' },
   { id: '100ml', ml: 100, key: 'price_100ml' },
+  { id: '105ml', ml: 105, key: 'price_105ml' },
 ] as const
 
 export type BottleSizeKey = (typeof BOTTLE_SIZES)[number]['key']
@@ -78,11 +104,16 @@ export interface BottleVariant {
  * Создать варианты флаконов из продукта
  */
 export function createBottleVariants(product: {
-  price_2ml: number | null
+  price_3ml: number | null
   price_5ml: number | null
   price_10ml: number | null
-  price_20ml: number | null
+  price_15ml: number | null
+  price_60ml: number | null
+  price_70ml: number | null
+  price_80ml: number | null
+  price_90ml: number | null
   price_100ml: number | null
+  price_105ml: number | null
 }): BottleVariant[] {
   const variants: BottleVariant[] = []
 
@@ -90,7 +121,7 @@ export function createBottleVariants(product: {
     const price = product[size.key]
 
     // Добавляем вариант только если поле существует
-    if (price !== undefined) {
+    if (price) {
       variants.push({
         id: size.id,
         ml: size.ml,
@@ -104,9 +135,9 @@ export function createBottleVariants(product: {
   // Fallback: если нет вариантов, добавляем один неактивный
   if (variants.length === 0) {
     variants.push({
-      id: '2ml',
-      ml: 2,
-      label: '2 мл',
+      id: '3ml',
+      ml: 3,
+      label: '3 мл',
       price: null,
       inStock: false,
     })

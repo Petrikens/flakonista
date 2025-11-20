@@ -21,16 +21,21 @@ export interface Product {
   occasions: string | null
   profile_tags: ProfileTag[]
   date_create: string
-  price_2ml: number | null
-  price_5ml: number | null
-  price_10ml: number | null
-  price_20ml: number | null
-  price_100ml: number | null
+  price_3ml?: number | null | undefined
+  price_5ml?: number | null | undefined
+  price_10ml?: number | null | undefined
+  price_15ml?: number | null | undefined
+  price_60ml?: number | null | undefined
+  price_70ml?: number | null | undefined
+  price_80ml?: number | null | undefined
+  price_90ml?: number | null | undefined
+  price_100ml?: number | null | undefined
+  price_105ml?: number | null | undefined
   top_notes: string | null
   heart_notes: string | null
   basic_notes: string | null
   brand_id: string
-  image_path: string
+  image_path: string[]
   brands?: Brand | null
   brand?: Brand
 }

@@ -7,5 +7,5 @@
     "skipLibCheck": true,
     "moduleResolution": "bundler"
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.vue", "nuxt.config.ts", ".nuxt", "types"]
+  "include": ["**/*.ts", "**/*.tsx", "**/*.vue", "nuxt.config.ts", ".nuxt/**/*", "types/**/*"]
 }

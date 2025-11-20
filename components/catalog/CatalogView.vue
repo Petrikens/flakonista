@@ -74,15 +74,8 @@
 
 <script setup lang="ts">
 import type { Gender } from '~/types/product'
-import FiltersMobile from '~/components/catalog/FiltersMobile.vue'
-import FiltersDesktop from '~/components/catalog/FiltersDesktop.vue'
-import SortMenu from '~/components/catalog/SortMenu.vue'
-import ProductGrid from '~/components/catalog/ProductGrid.vue'
 import { FunnelIcon } from '@heroicons/vue/20/solid'
-
-import { ref } from 'vue'
 import { useIntersectionObserver, useMounted, useThrottleFn } from '@vueuse/core'
-import { useInfiniteProducts } from '~/composables/useInfiniteProducts'
 
 const props = defineProps<{
   title: string
@@ -102,6 +95,7 @@ const {
   sortOptions,
   selectedSort,
   fetchProducts,
+  loadNextPage,
   resetFilters,
   onSortSelect,
   handleToggle,
@@ -115,8 +109,7 @@ const {
 // Бесконечная прокрутка — безопасный троттл
 const loadMoreEl = ref<HTMLElement | null>(null)
 const tryLoadMore = useThrottleFn(() => {
-  const canLoadMore = hasNext.value && !initialLoading.value && !isLoadingMore.value
-  if (canLoadMore) fetchProducts({ reset: false })
+  loadNextPage()
 }, 300)
 
 useIntersectionObserver(

@@ -24,7 +24,7 @@
       <div v-if="product" class="lg:grid lg:grid-cols-2 lg:gap-x-12 lg:items-start">
         <div class="lg:sticky lg:top-6">
           <NuxtImg
-            :src="product.image_path"
+            :src="product.image_path[0]"
             :alt="generateProductAlt(product.name, product.brand?.name)"
             :title="product.name"
             class="w-full rounded-lg bg-gray-100 object-cover shadow-lg"
@@ -281,12 +281,8 @@
 
 <script setup lang="ts">
 import type { Product } from '~/types/product'
-import { computed, ref, watch } from 'vue'
 import { HeartIcon } from '@heroicons/vue/24/outline'
 import { useMounted } from '@vueuse/core'
-import { useCartStore } from '~/stores/cart'
-import { useFavoritesStore } from '~/stores/favorites'
-import ProductImageSkeleton from '~/components/catalog/ProductImageSkeleton.vue'
 import {
   type BottleVariant,
   createBottleVariants,
@@ -295,10 +291,6 @@ import {
   generateProductAlt,
   getSeasonLabel,
 } from '~/utils/constants'
-
-// Nuxt composables
-import { useRoute } from 'vue-router'
-import { createError, useAsyncData, useNuxtApp, useSeoMeta } from 'nuxt/app'
 
 // ✅ Получаем ID из роута
 const route = useRoute()
@@ -346,7 +338,7 @@ useSeoMeta({
   description: () => product.value?.benefits || product.value?.suits || '',
   ogTitle: () => product.value?.name,
   ogDescription: () => product.value?.benefits || '',
-  ogImage: () => product.value?.image_path,
+  ogImage: () => product.value?.image_path[0],
 })
 
 // ✅ Состояние

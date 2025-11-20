@@ -41,14 +41,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { Bars3Icon } from '@heroicons/vue/24/outline'
-import MobileMenu from './MobileMenu.vue'
-import DesktopNav from './DesktopNav.vue'
-import UserMenu from './UserMenu.vue'
-import SearchButton from './SearchButton.vue'
-import CartButton from './CartButton.vue'
-import FavoriteButton from './FavoriteButton.vue'
 
 const navigation = {
   categories: [

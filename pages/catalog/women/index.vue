@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import type { ProductsListResponse } from '~/types/api'
-import CatalogView from '~/components/catalog/CatalogView.vue'
-import { useState, useAsyncData } from 'nuxt/app'
 
 const INITIAL_KEY = 'catalog:init:women' as const
 

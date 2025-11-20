@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import Drawer from '~/components/Drawer.vue'
-import { useUiStore } from '~/stores/ui'
-import { useFavoritesStore } from '~/stores/favorites'
-import { useCartStore } from '~/stores/cart'
 import { generateProductAlt, CONSTANTS } from '~/utils/constants'
-import { useRouter } from 'vue-router'
 
 const ui = useUiStore()
 const favorites = useFavoritesStore() as ReturnType<typeof useFavoritesStore>
@@ -30,7 +25,7 @@ function openProduct(id: string) {
             @click="ui.closeFavorites(), ui.closeCart()"
           >
             <img
-              :src="product.image_path || CONSTANTS.PRODUCT_IMAGE_PLACEHOLDER"
+              :src="product.image_path[0] || CONSTANTS.PRODUCT_IMAGE_PLACEHOLDER"
               :alt="generateProductAlt(product.name, product.brand?.name || product.brands?.name)"
               class="size-full object-cover"
             />
