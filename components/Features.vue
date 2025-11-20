@@ -1,16 +1,16 @@
 <template>
-  <div class="bg-white">
+  <div id="about" class="bg-white">
     <div
       class="mx-auto grid max-w-2xl grid-cols-1 items-center gap-x-8 gap-y-16 px-4 py-24 sm:px-6 sm:py-32 lg:max-w-7xl lg:grid-cols-2 lg:px-8"
     >
       <div>
         <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-          Technical Specifications
+          А почему, собственно, мы?
         </h2>
         <p class="mt-4 text-gray-500">
-          The walnut wood card tray is precision milled to perfectly fit a stack of Focus cards. The
-          powder coated steel divider separates active cards from new ones, or can be used to
-          archive important task lists.
+          Магазин «Флакониста» — это выражение нашей любви к парфюмерии. Обладая большим опытом и
+          знаниями, мы решили исследовать мир восточных ароматов, и результат нас по-настоящему
+          впечатлил.
         </p>
 
         <dl class="mt-16 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-16 lg:gap-x-8">
@@ -52,17 +52,35 @@
 
 <script setup>
 const features = [
-  { name: 'Origin', description: 'Designed by Good Goods, Inc.' },
   {
-    name: 'Material',
-    description: 'Solid walnut base with rare earth magnets and powder coated steel card cover',
+    name: '100% Оригинальная продукция',
+    description:
+      'Мы работаем только с проверенными поставщиками и гарантируем оригинальность каждого флакона.',
   },
-  { name: 'Dimensions', description: '6.25" x 3.55" x 1.15"' },
-  { name: 'Finish', description: 'Hand sanded and finished with natural oil' },
-  { name: 'Includes', description: 'Wood card tray and 3 refill packs' },
   {
-    name: 'Considerations',
-    description: 'Made from natural materials. Grain and color vary with each item.',
+    name: 'Парфюмеры с мировым именем',
+    description:
+      'Лучшее подтверждение качества — авторы композиций. Над ароматами наших брендов работали ведущие мастера индустрии, включая Квентина Биша (создателя хитов Fleur Narcotique, Ganymede и Delina).',
+  },
+  {
+    name: 'Попробуйте все и сразу',
+    description:
+      'Мы предлагаем небольшие объемы (3 – 15 мл) для знакомства с ароматом. Это лучший способ протестировать парфюм перед покупкой полного флакона. Также мы поможем собрать ваш «ольфакторный гардероб» на любой случай.',
+  },
+  {
+    name: 'Подарите нас',
+    description:
+      'На сайте представлены готовые решения — тематические наборы в стильной упаковке. Хотите чего-то особенного? Опишите свои пожелания, и мы соберем индивидуальный набор специально для вас, красиво упакуем и отправим получателю.',
+  },
+  {
+    name: 'Качество и эстетика',
+    description:
+      'Стойкость и шлейф не уступают дорогим аналогам. А упаковка и презентация — это отдельный вид искусства.',
+  },
+  {
+    name: 'Доверьтесь нашему опыту',
+    description:
+      'Мы изучили сотни дорогих ароматов, чтобы со знанием дела помочь вам сэкономить. Напишите нам название привычного парфюма или опишите любимые ноты — мы подберем для вас лучший вариант из восточной коллекции.',
   },
 ]
 </script>

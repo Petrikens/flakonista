@@ -4,11 +4,12 @@
       <div class="relative mx-auto max-w-7xl px-4 sm:static sm:px-6 lg:px-8">
         <div class="sm:max-w-lg">
           <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-            Summer styles are finally here
+            Оригинальная парфюмерия по доступным ценам
           </h1>
           <p class="mt-4 text-xl text-gray-500">
-            This year, our new summer collection will shelter you from the harsh elements of a world
-            that doesn't care if you live or die.
+            Большой выбор восточных ароматов. Полноразмерные флаконы, отливанты, аромабоксы и
+            подарочные наборы. Индивидуальный подход к каждому гостю нашего парфюмерного уголка. Не
+            нашли нужный аромат? Напишите нам, и мы постараемся найти его для вас.
           </p>
         </div>
         <div>
@@ -82,9 +83,9 @@
             </div>
 
             <a
-              href="#"
+              href="/catalog"
               class="inline-block rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-center font-medium text-white hover:bg-indigo-700"
-              >Shop Collection</a
+              >Каталог</a
             >
           </div>
         </div>

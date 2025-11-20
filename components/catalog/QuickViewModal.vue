@@ -45,20 +45,64 @@
 
                 <div class="grid w-full grid-cols-1 gap-6 p-4 sm:p-6 md:grid-cols-12">
                   <div class="md:col-span-5 flex items-center justify-center">
-                    <div class="sticky top-0">
-                      <NuxtImg
-                        v-if="product"
-                        :src="product.image_path[0]"
-                        :alt="generateProductAlt(product.name, product.brand?.name)"
-                        :title="product.name"
-                        class="aspect-square w-full rounded-md bg-gray-100 object-cover"
-                        format="webp"
-                        :modifiers="{ quality: 90 }"
-                      >
-                        <template #placeholder>
+                    <div class="sticky top-0 flex w-full flex-col gap-3">
+                      <div class="relative">
+                        <NuxtImg
+                          v-if="activeImage"
+                          :key="activeImage"
+                          :src="activeImage"
+                          :alt="generateProductAlt(product?.name ?? '', product?.brand?.name)"
+                          :title="product?.name"
+                          class="aspect-square w-full rounded-md bg-gray-100 object-cover shadow-lg"
+                          format="webp"
+                          :modifiers="{ quality: 90 }"
+                          @error="() => markImageAsBroken(activeImage)"
+                        >
+                          <template #placeholder>
+                            <ProductImageSkeleton />
+                          </template>
+                        </NuxtImg>
+                        <div v-else class="aspect-square w-full rounded-md bg-gray-100">
                           <ProductImageSkeleton />
-                        </template>
-                      </NuxtImg>
+                        </div>
+                      </div>
+
+                      <div
+                        v-if="productImages.length > 1"
+                        class="grid grid-cols-4 gap-2"
+                        role="listbox"
+                        aria-label="Изображения товара"
+                      >
+                        <button
+                          v-for="(image, index) in productImages"
+                          :key="image"
+                          type="button"
+                          class="group relative overflow-hidden rounded-md border transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+                          :class="
+                            index === activeImageIndex
+                              ? 'border-indigo-500 ring-2 ring-indigo-500 ring-offset-2'
+                              : 'border-transparent hover:border-gray-200'
+                          "
+                          :aria-selected="index === activeImageIndex"
+                          @mouseenter="activeImageIndex = index"
+                          @focus="activeImageIndex = index"
+                          @click="activeImageIndex = index"
+                        >
+                          <NuxtImg
+                            :src="image"
+                            :alt="generateProductAlt(product?.name ?? '', product?.brand?.name)"
+                            class="aspect-square w-full object-cover"
+                            format="webp"
+                            :modifiers="{ quality: 70 }"
+                            loading="lazy"
+                            @error="() => markImageAsBroken(image)"
+                          >
+                            <template #placeholder>
+                              <ProductImageSkeleton />
+                            </template>
+                          </NuxtImg>
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -252,6 +296,11 @@ import {
   generateProductAlt,
 } from '~/utils/constants'
 
+type FavoritesStore = ReturnType<typeof useFavoritesStore> & {
+  isFavorite: (productId: Product['id']) => boolean
+  toggle: (product: Product) => void
+}
+
 // ✅ Props с валидацией
 const props = defineProps<{
   open: boolean
@@ -268,9 +317,17 @@ const emit = defineEmits<{
 // ✅ Состояние
 const selectedId = ref<string | null>(null)
 const isAddingToCart = ref(false)
-const favorites = useFavoritesStore()
+const favorites = useFavoritesStore() as FavoritesStore
 
 // ✅ УЛУЧШЕНО: Создание вариантов флаконов без `as any`
+const brokenImages = ref<string[]>([])
+const productImages = computed(() => {
+  const images = props.product?.image_path ?? []
+  return images.filter((src): src is string => !!src && !brokenImages.value.includes(src))
+})
+const activeImageIndex = ref(0)
+const activeImage = computed(() => productImages.value[activeImageIndex.value] ?? null)
+
 const variants = computed<BottleVariant[]>(() => {
   if (!props.product) return []
   return createBottleVariants(props.product)
@@ -303,6 +360,8 @@ watch(
     if (!isOpen) {
       // Сброс состояния при закрытии
       isAddingToCart.value = false
+      activeImageIndex.value = 0
+      brokenImages.value = []
       return
     }
 
@@ -312,6 +371,30 @@ watch(
   },
   { immediate: true }
 )
+
+watch(
+  () => props.product?.id,
+  () => {
+    activeImageIndex.value = 0
+    brokenImages.value = []
+  }
+)
+
+watch(productImages, (images) => {
+  if (!images.length) {
+    activeImageIndex.value = 0
+    return
+  }
+
+  if (activeImageIndex.value > images.length - 1) {
+    activeImageIndex.value = 0
+  }
+})
+
+function markImageAsBroken(src: string | null) {
+  if (!src || brokenImages.value.includes(src)) return
+  brokenImages.value = [...brokenImages.value, src]
+}
 
 /**
  * Закрытие модалки

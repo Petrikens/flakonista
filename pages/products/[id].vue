@@ -23,18 +23,65 @@
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-6 pb-16">
       <div v-if="product" class="lg:grid lg:grid-cols-2 lg:gap-x-12 lg:items-start">
         <div class="lg:sticky lg:top-6">
-          <NuxtImg
-            :src="product.image_path[0]"
-            :alt="generateProductAlt(product.name, product.brand?.name)"
-            :title="product.name"
-            class="w-full rounded-lg bg-gray-100 object-cover shadow-lg"
-            format="webp"
-            :modifiers="{ quality: 90 }"
-          >
-            <template #placeholder>
-              <ProductImageSkeleton />
-            </template>
-          </NuxtImg>
+          <div class="flex flex-col gap-4">
+            <div class="relative">
+              <NuxtImg
+                v-if="activeImage"
+                :key="activeImage"
+                :src="activeImage"
+                :alt="generateProductAlt(product.name, product.brand?.name)"
+                :title="product.name"
+                class="w-full rounded-lg bg-gray-100 object-cover shadow-lg aspect-square"
+                format="webp"
+                :modifiers="{ quality: 90 }"
+                @error="() => markImageAsBroken(activeImage)"
+              >
+                <template #placeholder>
+                  <ProductImageSkeleton />
+                </template>
+              </NuxtImg>
+              <div v-else class="aspect-square w-full rounded-lg bg-gray-100">
+                <ProductImageSkeleton />
+              </div>
+            </div>
+
+            <div
+              v-if="productImages.length > 1"
+              class="grid grid-cols-4 gap-3"
+              role="listbox"
+              aria-label="Галерея изображений товара"
+            >
+              <button
+                v-for="(image, index) in productImages"
+                :key="image"
+                type="button"
+                class="group relative overflow-hidden rounded-md border transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+                :class="
+                  index === activeImageIndex
+                    ? 'border-indigo-500 ring-2 ring-indigo-500 ring-offset-2'
+                    : 'border-transparent hover:border-gray-200'
+                "
+                :aria-selected="index === activeImageIndex"
+                @mouseenter="activeImageIndex = index"
+                @focus="activeImageIndex = index"
+                @click="activeImageIndex = index"
+              >
+                <NuxtImg
+                  :src="image"
+                  :alt="generateProductAlt(product.name, product.brand?.name)"
+                  class="aspect-square w-full object-cover"
+                  format="webp"
+                  :modifiers="{ quality: 70 }"
+                  loading="lazy"
+                  @error="() => markImageAsBroken(image)"
+                >
+                  <template #placeholder>
+                    <ProductImageSkeleton />
+                  </template>
+                </NuxtImg>
+              </button>
+            </div>
+          </div>
         </div>
 
         <div class="mt-10 lg:mt-0">
@@ -292,6 +339,11 @@ import {
   getSeasonLabel,
 } from '~/utils/constants'
 
+type FavoritesStore = ReturnType<typeof useFavoritesStore> & {
+  isFavorite: (productId: Product['id']) => boolean
+  toggle: (product: Product) => void
+}
+
 // ✅ Получаем ID из роута
 const route = useRoute()
 const productId = route.params.id as string
@@ -333,20 +385,106 @@ if (error.value?.statusCode === 404) {
 }
 
 // ✅ SEO
-useSeoMeta({
-  title: () => (product.value ? `${product.value.name} | Flakonista` : 'Загрузка...'),
-  description: () => product.value?.benefits || product.value?.suits || '',
-  ogTitle: () => product.value?.name,
-  ogDescription: () => product.value?.benefits || '',
-  ogImage: () => product.value?.image_path[0],
+const config = useRuntimeConfig()
+const baseUrl = config.public.siteUrl || 'https://flakonista.by'
+const productUrl = computed(() => `${baseUrl}/products/${productId}`)
+const productImage = computed(() => {
+  const image = product.value?.image_path?.[0]
+  if (!image) return `${baseUrl}/images/logo.png`
+  return image.startsWith('http') ? image : `${baseUrl}${image}`
 })
+
+useSeoMeta({
+  title: () => (product.value ? product.value.name : 'Загрузка...'),
+  description: () => {
+    if (!product.value) return 'Премиальная парфюмерия с доставкой по Беларуси'
+    const desc =
+      product.value.benefits ||
+      product.value.suits ||
+      `Парфюм ${product.value.name}${product.value.brand?.name ? ` от ${product.value.brand.name}` : ''}`
+    return desc.length > 160 ? desc.substring(0, 157) + '...' : desc
+  },
+  ogTitle: () => product.value?.name || 'Flakonista',
+  ogDescription: () => {
+    if (!product.value) return 'Премиальная парфюмерия с доставкой по Беларуси'
+    const desc =
+      product.value.benefits ||
+      product.value.suits ||
+      `Парфюм ${product.value.name}${product.value.brand?.name ? ` от ${product.value.brand.name}` : ''}`
+    return desc.length > 200 ? desc.substring(0, 197) + '...' : desc
+  },
+  ogImage: () => productImage.value,
+  ogUrl: () => productUrl.value,
+  ogType: 'website',
+  twitterCard: 'summary_large_image',
+  twitterTitle: () => product.value?.name || 'Flakonista',
+  twitterDescription: () => {
+    if (!product.value) return 'Премиальная парфюмерия с доставкой по Беларуси'
+    const desc = product.value.benefits || product.value.suits || `Парфюм ${product.value.name}`
+    return desc.length > 200 ? desc.substring(0, 197) + '...' : desc
+  },
+  twitterImage: () => productImage.value,
+})
+
+useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: () => productUrl.value,
+    },
+  ],
+})
+
+// Структурированные данные для продукта
+const productStructuredData = computed(() => {
+  if (!product.value) return null
+  return useProductStructuredData(product.value)
+})
+
+// Структурированные данные для хлебных крошек
+const breadcrumbData = computed(() => {
+  if (!product.value) return null
+  return useBreadcrumbStructuredData([
+    { name: 'Главная', url: '/' },
+    { name: catalogName.value, url: catalogLink.value },
+    { name: product.value.name, url: `/products/${product.value.id}` },
+  ])
+})
+
+watch(
+  [productStructuredData, breadcrumbData],
+  ([productData, breadcrumb]) => {
+    if (!productData || !breadcrumb) return
+
+    useHead({
+      script: [
+        {
+          type: 'application/ld+json',
+          innerHTML: JSON.stringify(productData),
+        },
+        {
+          type: 'application/ld+json',
+          innerHTML: JSON.stringify(breadcrumb),
+        },
+      ],
+    })
+  },
+  { immediate: true }
+)
 
 // ✅ Состояние
 const cart = useCartStore() as ReturnType<typeof useCartStore>
-const favorites = useFavoritesStore() as ReturnType<typeof useFavoritesStore>
+const favorites = useFavoritesStore() as FavoritesStore
 const isMounted = useMounted()
 const selectedId = ref<string | null>(null)
 const isAddingToCart = ref(false)
+const brokenImages = ref<string[]>([])
+const productImages = computed(() => {
+  const images = product.value?.image_path ?? []
+  return images.filter((src): src is string => !!src && !brokenImages.value.includes(src))
+})
+const activeImageIndex = ref(0)
+const activeImage = computed(() => productImages.value[activeImageIndex.value] ?? null)
 
 // ✅ Варианты флаконов (без `as any`)
 const variants = computed<BottleVariant[]>(() => {
@@ -368,7 +506,7 @@ const canAddToCart = computed(() => {
 })
 
 const isFavorite = computed(() => {
-  return product.value ? (favorites as any).isFavorite(product.value.id) : false
+  return product.value ? favorites.isFavorite(product.value.id) : false
 })
 
 const catalogLink = computed(() => {
@@ -399,6 +537,30 @@ watch(
   { immediate: true }
 )
 
+watch(
+  () => product.value?.id,
+  () => {
+    activeImageIndex.value = 0
+    brokenImages.value = []
+  }
+)
+
+watch(productImages, (images) => {
+  if (!images.length) {
+    activeImageIndex.value = 0
+    return
+  }
+
+  if (activeImageIndex.value > images.length - 1) {
+    activeImageIndex.value = 0
+  }
+})
+
+function markImageAsBroken(src: string | null) {
+  if (!src || brokenImages.value.includes(src)) return
+  brokenImages.value = [...brokenImages.value, src]
+}
+
 async function handleAddToCart() {
   if (!canAddToCart.value) return
 
@@ -420,6 +582,6 @@ async function handleAddToCart() {
  */
 function handleFavoriteToggle() {
   if (!product.value) return
-  ;(favorites as any).toggle(product.value)
+  favorites.toggle(product.value)
 }
 </script>

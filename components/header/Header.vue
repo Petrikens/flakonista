@@ -25,10 +25,6 @@
             <DesktopNav :navigation="navigation" />
 
             <div class="ml-auto flex items-center">
-              <UserMenu />
-
-              <SearchButton />
-
               <FavoriteButton />
 
               <CartButton />
@@ -169,6 +165,9 @@ const navigation = {
     { name: 'Каталог', href: '/catalog' },
     { name: 'Мужчинам', href: '/catalog/men' },
     { name: 'Женщинам', href: '/catalog/women' },
+    { name: 'О нас', href: '/#about' },
+    { name: 'Доставка', href: '/#shiping' },
+    { name: 'Связаться с нами', href: '/#contact' },
   ],
 }
 

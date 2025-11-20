@@ -2,7 +2,14 @@
   <Hero />
   <Features />
   <Categories />
-  <HotProducts />
+  <HotProducts
+    title="Горячие новинки"
+    :genders="['men', 'unisex', 'women']"
+    :page-size="4"
+    :initial-state-key="INITIAL_KEY"
+  />
+  <ShipingInfo />
+  <ContactForm />
   <div
     v-if="!isMounted"
     class="flex items-center justify-center fixed left-0 top-0 z-50 h-full w-full bg-gray-100/50"
@@ -30,8 +37,73 @@
 
 <script setup lang="ts">
 import { useMounted } from '@vueuse/core'
+import type { ProductsListResponse } from '~/types/api'
 
+const config = useRuntimeConfig()
+const route = useRoute()
+const baseUrl = config.public.siteUrl || 'https://flakonista.by'
+
+const INITIAL_KEY = 'catalog:init:hotproducts' as const
+
+const { data } = await useAsyncData(
+  INITIAL_KEY,
+  () =>
+    $fetch<ProductsListResponse>('/api/products', {
+      query: {
+        genders: 'men,unisex,women',
+        sort: 'newest',
+        page: 1,
+        perPage: 4,
+      },
+    }),
+  { server: true }
+)
+
+useState<ProductsListResponse | null>(INITIAL_KEY, () => data.value)
 const isMounted = useMounted()
+
+// SEO мета-теги
+useSeoMeta({
+  title: 'Главная',
+  description:
+    'Премиальная парфюмерия с доставкой по Беларуси. Широкий выбор оригинальных ароматов для мужчин и женщин. Горячие новинки и популярные бренды.',
+  ogTitle: 'Flakonista - Премиальная парфюмерия с доставкой',
+  ogDescription:
+    'Премиальная парфюмерия с доставкой по Беларуси. Широкий выбор оригинальных ароматов для мужчин и женщин.',
+  ogImage: `${baseUrl}/images/logo.png`,
+  ogUrl: baseUrl,
+  ogType: 'website',
+  twitterCard: 'summary_large_image',
+  twitterTitle: 'Flakonista - Премиальная парфюмерия',
+  twitterDescription: 'Премиальная парфюмерия с доставкой по Беларуси',
+  twitterImage: `${baseUrl}/images/logo.png`,
+})
+
+useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: baseUrl,
+    },
+  ],
+})
+
+// Структурированные данные
+const organizationData = useOrganizationStructuredData()
+const websiteData = useWebSiteStructuredData()
+
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify(organizationData),
+    },
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify(websiteData),
+    },
+  ],
+})
 </script>
 
 <style>

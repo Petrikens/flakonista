@@ -1,2 +1,14 @@
 User-Agent: *
-Disallow:
+Allow: /
+Disallow: /checkout
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://flakonista.by/sitemap.xml
+
+# Crawl-delay для некоторых ботов
+User-Agent: Googlebot
+Crawl-delay: 0
+
+User-Agent: Bingbot
+Crawl-delay: 0

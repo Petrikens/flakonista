@@ -17,20 +17,30 @@
           :aria-label="`Открыть страницу товара: ${product.name}`"
           class="block"
         >
-          <div class="relative">
+          <div
+            class="relative"
+            @mousemove="handleImageMouseMove(product, $event)"
+            @mouseenter="handleImageMouseEnter(product)"
+            @mouseleave="handleImageMouseLeave(product)"
+          >
             <NuxtImg
-              :src="product.image_path[0]"
+              v-if="productImage(product)"
+              :src="productImage(product)"
               :alt="generateProductAlt(product.name, product.brand?.name)"
               :title="product.name"
               class="aspect-square w-full rounded-lg bg-gray-200 object-cover transition-opacity duration-200 group-hover:opacity-75 lg:aspect-auto lg:h-80"
               loading="lazy"
               format="webp"
               :modifiers="{ quality: 85 }"
+              @error="() => handleImageError(product, productImage(product))"
             >
               <template #placeholder>
                 <ProductImageSkeleton />
               </template>
             </NuxtImg>
+            <div v-else class="aspect-square w-full rounded-lg bg-gray-200 lg:aspect-auto lg:h-80">
+              <ProductImageSkeleton />
+            </div>
 
             <div
               class="absolute inset-0 z-10 flex items-end justify-center p-3 opacity-0 transition-opacity duration-200 md:group-hover:opacity-100 group-focus-within:opacity-100"
@@ -91,7 +101,7 @@
           <!-- Выбор объёма -->
           <label class="mt-1 text-sm text-gray-700" :for="`select-${product.id}`">Объём</label>
           <select
-            class="mt-1 rounded-md border-gray-300 text-sm focus:border-orange-500 focus:ring-orange-500"
+            class="mt-1 rounded-md border-gray-300 text-sm focus:border-orange-500 focus:ring-orange-500 h-8"
             :id="`select-${product.id}`"
             :aria-label="`Выбрать объём для ${product.name}`"
             v-model="selectedByProduct[product.id]"
@@ -183,9 +193,99 @@ const addingToCart = ref<string | null>(null)
 
 // Выбор варианта по товару
 const selectedByProduct = ref<Record<string, string | null>>({})
+const hoverImageIndex = ref<Record<string, number>>({})
+const brokenImagesByProduct = ref<Record<string, string[]>>({})
+
+function ensureHoverIndex(product: Product) {
+  if (!(product.id in hoverImageIndex.value)) {
+    hoverImageIndex.value[product.id] = 0
+  }
+}
+
+watch(
+  () => props.products.map((product) => product.id),
+  (productIds) => {
+    const existingIds = new Set(productIds)
+    Object.keys(hoverImageIndex.value).forEach((id) => {
+      if (!existingIds.has(id)) delete hoverImageIndex.value[id]
+    })
+    Object.keys(brokenImagesByProduct.value).forEach((id) => {
+      if (!existingIds.has(id)) {
+        const next = { ...brokenImagesByProduct.value }
+        delete next[id]
+        brokenImagesByProduct.value = next
+      }
+    })
+
+    productIds.forEach((id) => {
+      if (!(id in hoverImageIndex.value)) hoverImageIndex.value[id] = 0
+      if (!(id in brokenImagesByProduct.value)) {
+        brokenImagesByProduct.value = {
+          ...brokenImagesByProduct.value,
+          [id]: brokenImagesByProduct.value[id] ?? [],
+        }
+      }
+    })
+  },
+  { immediate: true }
+)
+
+function validImages(product: Product): string[] {
+  const base = product.image_path ?? []
+  const broken = brokenImagesByProduct.value[product.id] ?? []
+  return base.filter((src): src is string => !!src && !broken.includes(src))
+}
 
 function variantsFor(product: Product): BottleVariant[] {
   return createBottleVariants(product)
+}
+
+function productImage(product: Product): string {
+  const images = validImages(product)
+  if (!images.length) return ''
+  const index = hoverImageIndex.value[product.id] ?? 0
+  const safeIndex = Math.min(index, images.length - 1)
+  return images[safeIndex]
+}
+
+function handleImageMouseEnter(product: Product) {
+  ensureHoverIndex(product)
+}
+
+function handleImageMouseLeave(product: Product) {
+  hoverImageIndex.value[product.id] = 0
+}
+
+function handleImageMouseMove(product: Product, event: MouseEvent) {
+  const images = validImages(product)
+  if (!images.length) return
+
+  const target = event.currentTarget as HTMLElement | null
+  if (!target) return
+  const rect = target.getBoundingClientRect()
+  if (rect.width === 0) return
+
+  const relativeX = event.clientX - rect.left
+  const ratio = Math.min(Math.max(relativeX / rect.width, 0), 0.9999)
+  const nextIndex = Math.min(images.length - 1, Math.floor(ratio * images.length))
+
+  hoverImageIndex.value[product.id] = nextIndex
+}
+
+function handleImageError(product: Product, src: string | null) {
+  if (!src) return
+  const broken = brokenImagesByProduct.value[product.id] ?? []
+  if (broken.includes(src)) return
+  brokenImagesByProduct.value = {
+    ...brokenImagesByProduct.value,
+    [product.id]: [...broken, src],
+  }
+
+  const images = validImages(product)
+  if (!(product.id in hoverImageIndex.value)) return
+  if (!images.length || hoverImageIndex.value[product.id] >= images.length) {
+    hoverImageIndex.value[product.id] = 0
+  }
 }
 
 function getSelectedVariant(product: Product): BottleVariant | null {

@@ -88,6 +88,7 @@ export const BOTTLE_SIZES = [
 ] as const
 
 export type BottleSizeKey = (typeof BOTTLE_SIZES)[number]['key']
+export type BottlePriceFields = Partial<Record<BottleSizeKey, number | null | undefined>>
 
 /**
  * Интерфейс варианта флакона для UI
@@ -103,22 +104,11 @@ export interface BottleVariant {
 /**
  * Создать варианты флаконов из продукта
  */
-export function createBottleVariants(product: {
-  price_3ml: number | null
-  price_5ml: number | null
-  price_10ml: number | null
-  price_15ml: number | null
-  price_60ml: number | null
-  price_70ml: number | null
-  price_80ml: number | null
-  price_90ml: number | null
-  price_100ml: number | null
-  price_105ml: number | null
-}): BottleVariant[] {
+export function createBottleVariants(product: BottlePriceFields): BottleVariant[] {
   const variants: BottleVariant[] = []
 
   for (const size of BOTTLE_SIZES) {
-    const price = product[size.key]
+    const price = product[size.key] ?? null
 
     // Добавляем вариант только если поле существует
     if (price) {

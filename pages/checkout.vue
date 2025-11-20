@@ -10,6 +10,27 @@ import {
   ShoppingBagIcon,
 } from '@heroicons/vue/24/outline'
 
+const config = useRuntimeConfig()
+const route = useRoute()
+const baseUrl = config.public.siteUrl || 'https://flakonista.by'
+const canonicalUrl = `${baseUrl}/checkout`
+
+// SEO мета-теги для страницы оформления заказа (noindex)
+useSeoMeta({
+  title: 'Оформление заказа',
+  description: 'Оформление заказа парфюмерии с доставкой по Беларуси',
+  robots: 'noindex, nofollow',
+})
+
+useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: canonicalUrl,
+    },
+  ],
+})
+
 interface OrderResponse {
   ok: boolean
   orderId?: string
@@ -246,7 +267,7 @@ function getContactMethodLabel(method: string): string {
               <div class="flex gap-4">
                 <div class="w-20 h-20 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden">
                   <img
-                    :src="item.product.image_path || CONSTANTS.PRODUCT_IMAGE_PLACEHOLDER"
+                    :src="item.product.image_path[0] || CONSTANTS.PRODUCT_IMAGE_PLACEHOLDER"
                     :alt="
                       generateProductAlt(
                         item.product.name,
@@ -309,7 +330,7 @@ function getContactMethodLabel(method: string): string {
                 v-if="shipping > 0 && subtotal < 3000"
                 class="text-xs text-gray-500 bg-blue-50 p-2 rounded"
               >
-                До бесплатной доставки: {{ formatPrice(3000 - subtotal) }}
+                До бесплатной доставки: {{ formatPrice(50 - subtotal) }}
               </div>
 
               <div class="pt-3 border-t border-gray-200">

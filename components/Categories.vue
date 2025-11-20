@@ -2,7 +2,7 @@
   <div class="bg-gray-100">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div class="mx-auto max-w-2xl py-16 sm:py-24 lg:max-w-none lg:py-32">
-        <h2 class="text-2xl font-bold text-gray-900">Collections</h2>
+        <h2 class="text-2xl font-bold text-gray-900">Категории</h2>
 
         <div class="mt-6 space-y-12 lg:grid lg:grid-cols-3 lg:space-y-0 lg:gap-x-6">
           <div v-for="callout in callouts" :key="callout.name" class="group relative">
@@ -28,30 +28,30 @@
 <script setup>
 const callouts = [
   {
-    name: 'Desk and Office',
+    name: 'Мужчинам',
     description: 'Work from home accessories',
     imageSrc:
       'https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-02-edition-01.jpg',
     imageAlt:
       'Desk with leather desk pad, walnut desk organizer, wireless keyboard and mouse, and porcelain mug.',
-    href: '#',
+    href: '/catalog/men',
   },
   {
-    name: 'Self-Improvement',
+    name: 'Девушкам',
     description: 'Journals and note-taking',
     imageSrc:
       'https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-02-edition-02.jpg',
     imageAlt:
       'Wood table with porcelain mug, leather journal, brass pen, leather key ring, and a houseplant.',
-    href: '#',
+    href: '/catalog/women',
   },
   {
-    name: 'Travel',
+    name: 'Подарочные наборы и Аромабоксы',
     description: 'Daily commute essentials',
     imageSrc:
       'https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-02-edition-03.jpg',
     imageAlt: 'Collection of four insulated travel bottles on wooden shelf.',
-    href: '#',
+    href: '/catalog',
   },
 ]
 </script>
