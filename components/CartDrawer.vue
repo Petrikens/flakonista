@@ -88,14 +88,7 @@ function goToCheckout() {
               <div class="flex gap-3">
                 <button
                   type="button"
-                  class="text-gray-500 hover:text-gray-700"
-                  @click="cart.decrement(item.id as any, 1, item.variantId ?? null)"
-                >
-                  −
-                </button>
-                <button
-                  type="button"
-                  class="font-medium text-indigo-600 hover:text-indigo-500"
+                  class="font-medium text-primary hover:text-primary/80"
                   @click="removeItem(item.id as any, item.variantId ?? null)"
                 >
                   Удалить
@@ -116,7 +109,7 @@ function goToCheckout() {
       <div class="mt-6">
         <button
           :disabled="cart.items.length === 0"
-          class="w-full flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-xs hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="w-full flex items-center justify-center rounded-md border border-transparent bg-primary px-6 py-3 text-base font-medium text-white shadow-xs hover:bg-primary/80 disabled:opacity-50 disabled:cursor-not-allowed"
           @click="goToCheckout"
         >
           Перейти к оформлению

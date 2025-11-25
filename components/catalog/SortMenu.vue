@@ -1,7 +1,7 @@
 <template>
   <Menu as="div" class="relative inline-block text-left">
     <MenuButton
-      class="group inline-flex items-center justify-center text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      class="group inline-flex items-center justify-center text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary"
     >
       Сортировать
       <ChevronDownIcon

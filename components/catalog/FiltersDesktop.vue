@@ -10,7 +10,7 @@
     >
       <h3 class="-my-3 flow-root">
         <DisclosureButton
-          class="flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          class="flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
           :aria-controls="`panel-${section.id}`"
           :aria-expanded="isOpen"
         >
@@ -50,7 +50,7 @@
                   type="checkbox"
                   :checked="option.checked"
                   :aria-checked="option.checked"
-                  class="col-start-1 row-start-1 appearance-none rounded-sm border border-gray-300 bg-white checked:border-indigo-600 checked:bg-indigo-600 indeterminate:border-indigo-600 indeterminate:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:border-gray-300 disabled:bg-gray-100 disabled:checked:bg-gray-100 forced-colors:appearance-auto"
+                  class="col-start-1 row-start-1 appearance-none rounded-sm border border-gray-300 bg-white checked:border-primary checked:bg-primary indeterminate:border-primary indeterminate:bg-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:border-gray-300 disabled:bg-gray-100 disabled:checked:bg-gray-100 forced-colors:appearance-auto"
                   @change="onChange(section.id, option.value, $event)"
                 />
                 <!-- чек/индетерминейт визуал -->

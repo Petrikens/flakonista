@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { z } from 'zod'
+import type { CartItem } from '~/stores/cart'
 import { getMinPrice, formatPrice, generateProductAlt, CONSTANTS } from '~/utils/constants'
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import {
@@ -8,6 +9,7 @@ import {
   TruckIcon,
   CreditCardIcon,
   ShoppingBagIcon,
+  XMarkIcon,
 } from '@heroicons/vue/24/outline'
 
 const config = useRuntimeConfig()
@@ -68,14 +70,19 @@ const subtotal = computed(() =>
   )
 )
 
-// Доставка бесплатная при заказе от 3000 руб
+const FREE_SHIPPING_THRESHOLD = 50
+
+// Доставка бесплатная при заказе от 50 руб
 const shipping = computed(() => {
-  if (subtotal.value >= 3000) return 0
+  if (subtotal.value >= FREE_SHIPPING_THRESHOLD) return 0
   if (subtotal.value > 0) return 5
   return 0
 })
 
 const total = computed(() => subtotal.value + shipping.value)
+const remainingForFreeShipping = computed(() =>
+  Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal.value)
+)
 
 // =============================================
 // Валидация формы
@@ -153,6 +160,10 @@ function validateField(field: keyof FormData) {
   } else {
     delete errors[field]
   }
+}
+
+function removeItem(item: CartItem) {
+  cart.remove(item.id, item.variantId ?? null)
 }
 
 async function submit() {
@@ -250,9 +261,7 @@ function getContactMethodLabel(method: string): string {
           <div class="flex items-center gap-2 mb-6">
             <ShoppingBagIcon class="h-6 w-6 text-gray-700" />
             <h2 class="text-lg font-semibold text-gray-900">Ваш заказ</h2>
-            <span
-              class="ml-auto bg-indigo-100 text-indigo-700 text-xs font-medium px-2 py-1 rounded-full"
-            >
+            <span class="ml-auto bg-primary text-white text-xs font-medium px-2 py-1 rounded-full">
               {{ cart.items.length }} {{ cart.items.length === 1 ? 'товар' : 'товаров' }}
             </span>
           </div>
@@ -262,8 +271,16 @@ function getContactMethodLabel(method: string): string {
             <div
               v-for="item in cart.items"
               :key="`${item.id}:${item.variantId ?? 'base'}`"
-              class="bg-white rounded-lg p-4 shadow-sm"
+              class="relative bg-white rounded-lg p-4 shadow-sm"
             >
+              <button
+                type="button"
+                class="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition-colors"
+                aria-label="Удалить товар"
+                @click="removeItem(item)"
+              >
+                <XMarkIcon class="h-4 w-4" />
+              </button>
               <div class="flex gap-4">
                 <div class="w-20 h-20 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden">
                   <img
@@ -327,26 +344,26 @@ function getContactMethodLabel(method: string): string {
 
               <!-- Подсказка про бесплатную доставку -->
               <div
-                v-if="shipping > 0 && subtotal < 3000"
+                v-if="shipping > 0 && subtotal < FREE_SHIPPING_THRESHOLD"
                 class="text-xs text-gray-500 bg-blue-50 p-2 rounded"
               >
-                До бесплатной доставки: {{ formatPrice(50 - subtotal) }}
+                До бесплатной доставки: {{ formatPrice(remainingForFreeShipping) }}
               </div>
 
               <div class="pt-3 border-t border-gray-200">
                 <div class="flex justify-between">
                   <span class="text-base font-semibold text-gray-900">Итого</span>
-                  <span class="text-xl font-bold text-indigo-600">{{ formatPrice(total) }}</span>
+                  <span class="text-xl font-bold text-primary">{{ formatPrice(total) }}</span>
                 </div>
               </div>
             </div>
 
-            <!-- ✅ УЛУЧШЕНО: Кнопка с состояниями -->
+            <!-- ✅ УЛУЧШЕНО: Кнопка с состояниями (desktop) -->
             <button
               type="button"
-              class="mt-6 w-full rounded-lg px-4 py-3 text-sm font-medium text-white transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="hidden lg:block mt-6 w-full rounded-lg px-4 py-3 text-sm font-medium text-white transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               :class="
-                submitting ? 'bg-gray-400' : 'bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98]'
+                submitting ? 'bg-gray-400' : 'bg-primary hover:bg-primary/80 active:scale-[0.98]'
               "
               :disabled="cart.items.length === 0 || submitting"
               @click="confirmSubmit = true"
@@ -406,7 +423,7 @@ function getContactMethodLabel(method: string): string {
           <div class="mb-8">
             <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <span
-                class="flex items-center justify-center w-7 h-7 rounded-full bg-indigo-100 text-indigo-600 text-sm font-bold"
+                class="flex items-center justify-center w-7 h-7 rounded-full bg-primary text-white text-sm font-bold"
               >
                 1
               </span>
@@ -422,7 +439,7 @@ function getContactMethodLabel(method: string): string {
                   v-model="form.firstName"
                   type="text"
                   placeholder="Иван"
-                  class="w-full px-4 py-2 border rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                  class="w-full px-4 py-2 border rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                   :class="errors.firstName ? 'border-red-300' : 'border-gray-300'"
                   @blur="validateField('firstName')"
                 />
@@ -439,7 +456,7 @@ function getContactMethodLabel(method: string): string {
                   v-model="form.lastName"
                   type="text"
                   placeholder="Иванов"
-                  class="w-full px-4 py-2 border rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                  class="w-full px-4 py-2 border rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                   :class="errors.lastName ? 'border-red-300' : 'border-gray-300'"
                   @blur="validateField('lastName')"
                 />
@@ -456,7 +473,7 @@ function getContactMethodLabel(method: string): string {
                   v-model="form.email"
                   type="email"
                   placeholder="ivan@example.com"
-                  class="w-full px-4 py-2 border rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                  class="w-full px-4 py-2 border rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                   :class="errors.email ? 'border-red-300' : 'border-gray-300'"
                   @blur="validateField('email')"
                 />
@@ -473,7 +490,7 @@ function getContactMethodLabel(method: string): string {
                   v-model="form.phone"
                   type="tel"
                   placeholder="+375XXXXXXXX"
-                  class="w-full px-4 py-2 border rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                  class="w-full px-4 py-2 border rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                   :class="errors.phone ? 'border-red-300' : 'border-gray-300'"
                   @blur="validateField('phone')"
                 />
@@ -493,7 +510,7 @@ function getContactMethodLabel(method: string): string {
                     class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border cursor-pointer transition-colors"
                     :class="
                       form.contactMethod === method
-                        ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
+                        ? 'bg-primary border-primary/20 text-white'
                         : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                     "
                   >
@@ -514,7 +531,7 @@ function getContactMethodLabel(method: string): string {
           <div class="mb-8">
             <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <span
-                class="flex items-center justify-center w-7 h-7 rounded-full bg-indigo-100 text-indigo-600 text-sm font-bold"
+                class="flex items-center justify-center w-7 h-7 rounded-full bg-primary text-white text-sm font-bold"
               >
                 2
               </span>
@@ -530,7 +547,7 @@ function getContactMethodLabel(method: string): string {
                   v-model="form.city"
                   type="text"
                   placeholder="Минск"
-                  class="w-full px-4 py-2 border rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                  class="w-full px-4 py-2 border rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                   :class="errors.city ? 'border-red-300' : 'border-gray-300'"
                   @blur="validateField('city')"
                 />
@@ -547,7 +564,7 @@ function getContactMethodLabel(method: string): string {
                   v-model="form.postalCode"
                   type="text"
                   placeholder="123456"
-                  class="w-full px-4 py-2 border rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                  class="w-full px-4 py-2 border rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                   :class="errors.postalCode ? 'border-red-300' : 'border-gray-300'"
                   @blur="validateField('postalCode')"
                 />
@@ -564,7 +581,7 @@ function getContactMethodLabel(method: string): string {
                   v-model="form.street"
                   type="text"
                   placeholder="ул. Ленина"
-                  class="w-full px-4 py-2 border rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                  class="w-full px-4 py-2 border rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                   :class="errors.street ? 'border-red-300' : 'border-gray-300'"
                   @blur="validateField('street')"
                 />
@@ -581,7 +598,7 @@ function getContactMethodLabel(method: string): string {
                   v-model="form.house"
                   type="text"
                   placeholder="10"
-                  class="w-full px-4 py-2 border rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                  class="w-full px-4 py-2 border rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                   :class="errors.house ? 'border-red-300' : 'border-gray-300'"
                   @blur="validateField('house')"
                 />
@@ -598,7 +615,7 @@ function getContactMethodLabel(method: string): string {
                   v-model="form.apartment"
                   type="text"
                   placeholder="15 (необязательно)"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                 />
               </div>
             </div>
@@ -608,7 +625,7 @@ function getContactMethodLabel(method: string): string {
           <div class="mb-8">
             <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <span
-                class="flex items-center justify-center w-7 h-7 rounded-full bg-indigo-100 text-indigo-600 text-sm font-bold"
+                class="flex items-center justify-center w-7 h-7 rounded-full bg-primary text-white text-sm font-bold"
               >
                 3
               </span>
@@ -623,11 +640,51 @@ function getContactMethodLabel(method: string): string {
                 v-model="form.notes"
                 rows="3"
                 placeholder="Например: позвоните за час до доставки"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors resize-none"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors resize-none"
               ></textarea>
             </div>
           </div>
         </form>
+        <!-- Мобильная кнопка оформления -->
+        <div class="lg:hidden mt-6">
+          <button
+            type="button"
+            class="w-full rounded-lg px-4 py-3 text-sm font-medium text-white transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            :class="
+              submitting ? 'bg-gray-400' : 'bg-primary hover:bg-primary/80 active:scale-[0.98]'
+            "
+            :disabled="cart.items.length === 0 || submitting"
+            @click="confirmSubmit = true"
+          >
+            <span v-if="!submitting" class="flex items-center justify-center gap-2">
+              <CreditCardIcon class="h-5 w-5" />
+              Оформить заказ
+            </span>
+            <span v-else class="flex items-center justify-center gap-2">
+              <svg
+                class="animate-spin h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              Обработка...
+            </span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -684,7 +741,7 @@ function getContactMethodLabel(method: string): string {
                     Продолжить покупки
                   </button>
                   <button
-                    class="flex-1 rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 transition-colors"
+                    class="flex-1 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/80 transition-colors"
                     @click="(showSuccess = false), router.replace('/')"
                   >
                     На главную
@@ -745,7 +802,7 @@ function getContactMethodLabel(method: string): string {
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Сумма заказа:</span>
-                    <span class="font-bold text-indigo-600">{{ formatPrice(total) }}</span>
+                    <span class="font-bold text-primary">{{ formatPrice(total) }}</span>
                   </div>
                 </div>
               </div>
@@ -758,7 +815,7 @@ function getContactMethodLabel(method: string): string {
                   Отмена
                 </button>
                 <button
-                  class="flex-1 rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                  class="flex-1 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/80 transition-colors disabled:opacity-50"
                   :disabled="submitting"
                   @click="submit"
                 >

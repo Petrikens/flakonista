@@ -45,7 +45,7 @@ export const useInfiniteProducts = (opts: UseInfiniteProductsOptions) => {
   const filters = computed<FilterSection[]>(() => [
     {
       id: 'brand',
-      name: 'Брэнд',
+      name: 'Бренд',
       options: brandOptionsRaw.value.map((b: FilterOption) => ({
         ...b,
         checked: selected.brandIds.includes(String(b.value)),

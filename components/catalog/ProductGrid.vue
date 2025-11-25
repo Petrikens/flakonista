@@ -28,7 +28,7 @@
               :src="productImage(product)"
               :alt="generateProductAlt(product.name, product.brand?.name)"
               :title="product.name"
-              class="aspect-square w-full rounded-lg bg-gray-200 object-cover transition-opacity duration-200 group-hover:opacity-75 lg:aspect-auto lg:h-80"
+              class="aspect-[3/4] w-full rounded-lg bg-gray-200 object-cover transition-opacity duration-200 group-hover:opacity-75"
               loading="lazy"
               format="webp"
               :modifiers="{ quality: 85 }"
@@ -38,12 +38,12 @@
                 <ProductImageSkeleton />
               </template>
             </NuxtImg>
-            <div v-else class="aspect-square w-full rounded-lg bg-gray-200 lg:aspect-auto lg:h-80">
+            <div v-else class="aspect-[3/4] w-full rounded-lg bg-gray-200">
               <ProductImageSkeleton />
             </div>
 
             <div
-              class="absolute inset-0 z-10 flex items-end justify-center p-3 opacity-0 transition-opacity duration-200 md:group-hover:opacity-100 group-focus-within:opacity-100"
+              class="absolute inset-0 z-10 hidden items-end justify-center p-3 opacity-0 transition-opacity duration-200 md:flex md:group-hover:opacity-100 md:group-focus-within:opacity-100"
             >
               <button
                 type="button"
@@ -70,8 +70,8 @@
                 class="h-5 w-5 transition-colors"
                 :class="
                   isFavoriteLocal(product.id)
-                    ? 'text-red-600 fill-red-600'
-                    : 'text-gray-600 hover:text-red-600'
+                    ? 'text-primary fill-primary'
+                    : 'text-gray-600 hover:text-primary'
                 "
                 aria-hidden="true"
               />
@@ -121,7 +121,7 @@
         <!-- Кнопка в корзину -->
         <button
           type="button"
-          class="w-full inline-flex items-center justify-center rounded-md border border-transparent bg-orange-600 py-2 mt-2 text-center text-sm font-medium text-white transition-all hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="w-full inline-flex items-center justify-center rounded-md border border-transparent bg-primary hover:bg-primary/80 py-2 mt-2 text-center text-sm font-medium text-white transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           :disabled="addingToCart === product.id || !canAddSelected(product)"
           :aria-label="`Добавить ${product.name} в корзину`"
           @click.prevent="onAddToCart(product, $event)"

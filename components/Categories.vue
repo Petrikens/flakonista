@@ -11,7 +11,7 @@
               :alt="callout.imageAlt"
               class="w-full rounded-lg bg-white object-cover group-hover:opacity-75 max-sm:h-80 sm:aspect-2/1 lg:aspect-square"
             />
-            <h3 class="mt-6 text-sm text-gray-500">
+            <h3 class="mt-6 text-sm text-primary">
               <a :href="callout.href">
                 <span class="absolute inset-0" />
                 {{ callout.name }}
@@ -29,7 +29,7 @@
 const callouts = [
   {
     name: 'Мужчинам',
-    description: 'Work from home accessories',
+    description: 'Выделяйтесь без лишних слов',
     imageSrc:
       'https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-02-edition-01.jpg',
     imageAlt:
@@ -37,8 +37,8 @@ const callouts = [
     href: '/catalog/men',
   },
   {
-    name: 'Девушкам',
-    description: 'Journals and note-taking',
+    name: 'Женщинам',
+    description: 'За вашим шлейфом будут следовать',
     imageSrc:
       'https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-02-edition-02.jpg',
     imageAlt:
@@ -46,8 +46,8 @@ const callouts = [
     href: '/catalog/women',
   },
   {
-    name: 'Подарочные наборы и Аромабоксы',
-    description: 'Daily commute essentials',
+    name: 'Подарочные наборы и аромабоксы',
+    description: 'Лучшие ароматы уже собраны здесь',
     imageSrc:
       'https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-02-edition-03.jpg',
     imageAlt: 'Collection of four insulated travel bottles on wooden shelf.',

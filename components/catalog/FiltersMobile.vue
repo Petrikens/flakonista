@@ -33,7 +33,7 @@
               <h2 class="text-lg font-medium text-gray-900">Фильтры</h2>
               <button
                 type="button"
-                class="relative -mr-2 flex size-10 items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                class="relative -mr-2 flex size-10 items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary"
                 @click="emit('update:open', false)"
               >
                 <span class="sr-only">Закрыть меню фильтров</span>
@@ -90,7 +90,7 @@
                             :name="sectionName(section.id)"
                             :value="option.value"
                             :type="inputType(section.id)"
-                            class="col-start-1 row-start-1 appearance-none rounded-sm border border-gray-300 bg-white checked:border-indigo-600 checked:bg-indigo-600 indeterminate:border-indigo-600 indeterminate:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:border-gray-300 disabled:bg-gray-100 disabled:checked:bg-gray-100 forced-colors:appearance-auto"
+                            class="col-start-1 row-start-1 appearance-none rounded-sm border border-gray-300 bg-white checked:border-primary checked:bg-primary indeterminate:border-primary indeterminate:bg-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:border-gray-300 disabled:bg-gray-100 disabled:checked:bg-gray-100 forced-colors:appearance-auto"
                             :checked="option.checked"
                             @change="
                               onToggle(

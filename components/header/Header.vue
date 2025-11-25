@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white">
+  <div class="bg-white sticky top-0 z-30 shadow-sm">
     <MobileMenu :navigation="navigation" v-model:open="open" />
     <header class="relative bg-white">
       <nav aria-label="Top" class="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8">

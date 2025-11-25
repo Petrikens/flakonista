@@ -4,14 +4,14 @@
       class="mx-auto grid max-w-2xl grid-cols-1 items-center gap-x-8 gap-y-16 px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8"
     >
       <div>
-        <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Доставка</h2>
+        <h2 class="text-3xl font-bold tracking-tight text-primary sm:text-4xl">Доставка</h2>
         <p class="mt-4 text-gray-500">
           При заказе на сумму от 50 BYN мы вкладываем в посылку парфюмерный подарок.
         </p>
 
         <dl class="mt-16 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-16 lg:gap-x-8">
           <div class="border-t border-gray-200 pt-4">
-            <dt class="font-medium text-gray-900">РУП «Белпочта» (до отделения)</dt>
+            <dt class="font-medium text-primary">РУП «Белпочта» (до отделения)</dt>
             <dd class="mt-2 text-sm text-gray-500"><b>Стоимость:</b> 5 BYN.</dd>
             <dd class="mt-2 text-sm text-gray-500">
               <b>Бесплатная доставка:</b> Для заказов на сумму от 100 BYN.
@@ -26,7 +26,7 @@
             </dd>
           </div>
           <div class="border-t border-gray-200 pt-4">
-            <dt class="font-medium text-gray-900">Европочта (до отделения)</dt>
+            <dt class="font-medium text-primary">Европочта (до отделения)</dt>
             <dd class="mt-2 text-sm text-gray-500"><b>Стоимость:</b> 5 BYN.</dd>
             <dd class="mt-2 text-sm text-gray-500">
               <b>Бесплатная доставка:</b> Для заказов на сумму от 100 BYN.

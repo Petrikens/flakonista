@@ -94,7 +94,7 @@ async function submit() {
     <div class="grid lg:grid-cols-2 items-center gap-8">
       <div class="py-8 px-8 sm:px-10 bg-gray-100 rounded-3xl">
         <h2 class="text-3xl text-slate-900 font-bold">
-          Задать <span class="text-blue-700">Вопрос</span>
+          Задать <span class="text-primary">Вопрос</span>
         </h2>
         <p class="text-[15px] text-slate-600 mt-4 leading-relaxed">
           Вы можете задать любой интересующий Вас вопрос.
@@ -145,7 +145,7 @@ async function submit() {
           </div>
           <button
             type="submit"
-            class="mt-8 flex items-center justify-center text-sm font-medium w-full rounded-md px-4 py-3 tracking-wide text-white cursor-pointer bg-blue-600 hover:bg-blue-700 border-0 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+            class="mt-8 flex items-center justify-center text-sm font-medium w-full rounded-md px-4 py-3 tracking-wide text-white cursor-pointer bg-primary hover:bg-primary/80 border-0 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
             :disabled="submitting"
           >
             <svg
@@ -173,9 +173,9 @@ async function submit() {
         </form>
 
         <ul
-          class="mt-4 flex flex-wrap justify-center gap-4 lg:space-x-6 max-lg:flex-col max-lg:items-center max-lg:space-y-2"
+          class="mt-4 flex flex-wrap flex-col justify-center items-center gap-4 lg:space-x-6 max-lg:flex-col max-lg:items-center max-lg:space-y-2"
         >
-          <li class="flex items-center text-blue-700 font-medium">
+          <li class="flex items-center text-black-700 font-medium">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16px"
@@ -188,9 +188,11 @@ async function submit() {
                 data-original="#000000"
               />
             </svg>
-            <a href="javascript:void(0)" class="text-current text-sm ml-3"> info@example.com </a>
+            <a href="mailto: flakonista.order@gmail.com" class="text-current text-sm ml-3"
+              >flakonista.order@gmail.com</a
+            >
           </li>
-          <li class="flex items-center text-blue-700 font-medium">
+          <li class="flex items-center text-black-700 font-medium">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16px"
@@ -203,7 +205,7 @@ async function submit() {
                 data-original="#000000"
               ></path>
             </svg>
-            <a href="javascript:void(0)" class="text-current text-sm ml-3"> +158 996 888 </a>
+            <a href="tel:+375(29)895-50-14" class="text-current text-sm ml-3">+375(29)895-50-14</a>
           </li>
         </ul>
       </div>

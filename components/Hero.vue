@@ -4,7 +4,7 @@
       <div class="relative mx-auto max-w-7xl px-4 sm:static sm:px-6 lg:px-8">
         <div class="sm:max-w-lg">
           <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-            Оригинальная парфюмерия по доступным ценам
+            <span class="text-primary">Флакониста</span> оригинальная парфюмерия по доступным ценам
           </h1>
           <p class="mt-4 text-xl text-gray-500">
             Большой выбор восточных ароматов. Полноразмерные флаконы, отливанты, аромабоксы и
@@ -84,7 +84,7 @@
 
             <a
               href="/catalog"
-              class="inline-block rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-center font-medium text-white hover:bg-indigo-700"
+              class="inline-block rounded-md border border-transparent bg-primary px-8 py-3 text-center font-medium text-white hover:bg-primary/80"
               >Каталог</a
             >
           </div>

@@ -13,14 +13,14 @@ defineProps({
     <div class="relative flex">
       <PopoverButton
         :class="[
-          open ? 'text-indigo-600' : 'text-gray-700 hover:text-gray-800',
+          open ? 'text-primary' : 'text-gray-700 hover:text-gray-800',
           'relative flex items-center justify-center text-sm font-medium transition-colors duration-200 ease-out',
         ]"
       >
         {{ category.name }}
         <span
           :class="[
-            open ? 'bg-indigo-600' : '',
+            open ? 'bg-primary' : '',
             'absolute inset-x-0 -bottom-px z-30 h-0.5 transition duration-200 ease-out',
           ]"
         />

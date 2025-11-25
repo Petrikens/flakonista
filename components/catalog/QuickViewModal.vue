@@ -35,7 +35,7 @@
                 <!-- ✅ УЛУЧШЕНО: Кнопка закрытия с hover эффектом -->
                 <button
                   type="button"
-                  class="absolute right-3 top-3 z-10 inline-flex size-9 items-center justify-center rounded-md bg-white/80 backdrop-blur-sm text-gray-400 transition-colors hover:bg-white hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  class="absolute right-3 top-3 z-10 inline-flex size-9 items-center justify-center rounded-md bg-white/80 backdrop-blur-sm text-gray-400 transition-colors hover:bg-white hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary"
                   aria-label="Закрыть окно быстрого просмотра"
                   @click="handleClose"
                 >
@@ -77,10 +77,10 @@
                           v-for="(image, index) in productImages"
                           :key="image"
                           type="button"
-                          class="group relative overflow-hidden rounded-md border transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+                          class="group relative overflow-hidden rounded-md border transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                           :class="
                             index === activeImageIndex
-                              ? 'border-indigo-500 ring-2 ring-indigo-500 ring-offset-2'
+                              ? 'border-primary ring-2 ring-primary ring-offset-2'
                               : 'border-transparent hover:border-gray-200'
                           "
                           :aria-selected="index === activeImageIndex"
@@ -121,7 +121,7 @@
                       <span
                         v-for="tag in product.profile_tags"
                         :key="tag"
-                        class="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700"
+                        class="inline-flex items-center rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-white"
                       >
                         {{ tag }}
                       </span>
@@ -160,9 +160,9 @@
                         <label
                           v-for="variant in variants"
                           :key="variant.id"
-                          class="group relative flex cursor-pointer flex-col items-center justify-center rounded-md border border-gray-300 bg-white p-2 transition-all has-checked:border-indigo-600 has-checked:bg-indigo-600 has-checked:shadow-md focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+                          class="group relative flex cursor-pointer flex-col items-center justify-center rounded-md border border-gray-300 bg-white p-2 transition-all has-checked:border-primary/20 has-checked:bg-primary has-checked:shadow-md focus-within:outline-none focus-within:ring-2 focus-within:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
                           :class="{
-                            'hover:border-indigo-300 hover:shadow-sm': variant.inStock,
+                            'hover:border-primary/20 hover:shadow-sm': variant.inStock,
                             'opacity-60': !variant.inStock,
                           }"
                         >
@@ -205,7 +205,7 @@
                           <!-- ✅ ДОБАВЛЕНО: Индикатор выбранного -->
                           <span
                             v-if="variant.id === selectedId"
-                            class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-indigo-600 text-white"
+                            class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-black text-white"
                             aria-hidden="true"
                           >
                             <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 12 12">
@@ -224,7 +224,7 @@
                     >
                       <button
                         type="button"
-                        class="inline-flex flex-1 items-center justify-center rounded-md bg-orange-600 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-600"
+                        class="inline-flex flex-1 items-center justify-center rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary"
                         :disabled="!canAddToCart || isAddingToCart"
                         :aria-label="`Добавить ${product?.name} объёмом ${selectedVariant?.label} в корзину`"
                         @click="handleAddToCart"
@@ -258,14 +258,14 @@
 
                       <button
                         type="button"
-                        class="inline-flex items-center justify-center rounded-md px-3 py-2 ring-1 ring-inset ring-gray-300 text-gray-700 transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 active:scale-95"
+                        class="inline-flex items-center justify-center rounded-md px-3 py-2 ring-1 ring-inset ring-gray-300 text-gray-700 transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary active:scale-95"
                         :aria-label="isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'"
                         :aria-pressed="isFavorite"
                         @click="handleFavoriteToggle"
                       >
                         <HeartIcon
                           class="h-6 w-6 transition-all"
-                          :class="isFavorite ? 'text-red-600 fill-red-600' : 'text-gray-600'"
+                          :class="isFavorite ? 'text-primary fill-primary' : 'text-gray-600'"
                           aria-hidden="true"
                         />
                         <span class="sr-only">
