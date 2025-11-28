@@ -195,7 +195,6 @@ async function submit() {
         id: i.id,
         productId: i.product.id, // ✅ ДОБАВЛЕНО
         name: i.product.name,
-        image: i.product.image_path, // ✅ ДОБАВЛЕНО
         variantId: i.variant?.id, // ✅ ДОБАВЛЕНО
         variantLabel: i.variant?.label, // ✅ ДОБАВЛЕНО
         qty: i.qty,
@@ -210,8 +209,6 @@ async function submit() {
       method: 'POST',
       body: payload,
     })
-
-    console.log(res)
 
     if (res.ok && res.orderNumber) {
       orderNumber.value = res.orderNumber // ✅ ИСПОЛЬЗУЕМ orderNumber

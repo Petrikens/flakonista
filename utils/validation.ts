@@ -27,6 +27,10 @@ export const VALIDATION = {
     MAX_PER_PAGE: 100,
     DEFAULT_PER_PAGE: 20,
   },
+  SEARCH: {
+    MIN_LENGTH: 2,
+    MAX_LENGTH: 60,
+  },
 } as const
 
 /**
@@ -65,4 +69,21 @@ export function filterValidValues<T>(
   validator: (v: string) => boolean
 ): string[] {
   return values.filter(validator)
+}
+
+/**
+ * Нормализация строки поиска
+ */
+export function normalizeSearchTerm(value: string): string {
+  const trimmed = value.trim().replace(/\s+/g, ' ')
+  if (!trimmed) return ''
+  if (trimmed.length < VALIDATION.SEARCH.MIN_LENGTH) return ''
+  return trimmed.slice(0, VALIDATION.SEARCH.MAX_LENGTH)
+}
+
+/**
+ * Экранирование специальных символов для ILIKE
+ */
+export function escapeILikePattern(value: string): string {
+  return value.replace(/[%_]/g, '\\$&')
 }

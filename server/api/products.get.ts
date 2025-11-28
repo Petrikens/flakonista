@@ -12,6 +12,8 @@ import {
   isValidSort,
   isValidProfileTag,
   filterValidValues,
+  normalizeSearchTerm,
+  escapeILikePattern,
 } from '~/utils/validation'
 
 /**
@@ -86,6 +88,10 @@ export default eventHandler(async (event: H3Event): Promise<ProductsListResponse
     .filter(Boolean)
   const profileAll = filterValidValues(profileAllRaw, isValidProfileTag)
 
+  // ✅ ВАЛИДАЦИЯ: Поисковый запрос
+  const searchValue = String(query.search ?? '')
+  const normalizedSearch = normalizeSearchTerm(searchValue)
+
   // ✅ ВАЛИДАЦИЯ: Sort
   const sortValue = String(query.sort ?? 'newest')
   if (!isValidSort(sortValue)) {
@@ -136,6 +142,10 @@ export default eventHandler(async (event: H3Event): Promise<ProductsListResponse
 
   if (profileAll.length > 0) {
     request = request.contains('profile_tags', profileAll)
+  }
+
+  if (normalizedSearch) {
+    request = request.ilike('name', `%${escapeILikePattern(normalizedSearch)}%`)
   }
 
   // Сортировка

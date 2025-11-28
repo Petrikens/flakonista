@@ -4,7 +4,7 @@
     <header class="relative bg-white">
       <nav aria-label="Top" class="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8">
         <div class="border-b border-gray-200">
-          <div class="flex h-16 items-center">
+          <div class="flex flex-wrap items-center gap-y-3 py-4 lg:h-16 lg:flex-nowrap lg:gap-y-0">
             <button
               type="button"
               class="relative rounded-md bg-white p-2 text-gray-400 lg:hidden"
@@ -23,8 +23,10 @@
             </div>
 
             <DesktopNav :navigation="navigation" />
-
-            <div class="ml-auto flex items-center">
+            <div class="order-last w-full lg:order-none lg:flex-1 lg:pl-6">
+              <ProductSearch />
+            </div>
+            <div class="ml-auto flex items-center gap-2">
               <FavoriteButton />
 
               <CartButton />
