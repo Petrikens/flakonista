@@ -174,3 +174,5 @@ const finalDetails = [
   'Действующая редакция документа всегда доступна на https://www.flakonista.by.',
 ]
 </script>
+
+

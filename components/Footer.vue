@@ -87,12 +87,6 @@ interface FooterLink {
 }
 
 const footerLinks: FooterLink[] = [
-  { href: '/catalog', label: 'Каталог' },
-  { href: '/catalog/men', label: 'Мужчинам' },
-  { href: '/catalog/women', label: 'Женщинам' },
-  { href: '/#about', label: 'О нас' },
-  { href: '/#shiping', label: 'Доставка' },
-  { href: '/#contact', label: 'Связаться с нами' },
   { href: '/offer', label: 'Договор оферты' },
   { href: '/privacy', label: 'Политика конфиденциальности' },
 ]
