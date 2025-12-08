@@ -9,7 +9,6 @@ const OrderItemSchema = z.object({
   id: z.union([z.string(), z.number()]),
   productId: z.string().optional(), // UUID товара
   name: z.string().min(1),
-  image: z.string().optional(), // Изображение товара
   variantId: z.string().optional(), // ID варианта (2ml, 5ml и т.д.)
   variantLabel: z.string().optional(), // Название варианта
   qty: z.number().int().positive(),
@@ -64,7 +63,6 @@ interface DbOrderItem {
   order_id: string
   product_id: string | null
   product_name: string
-  product_image: string | null
   variant_id: string | null
   variant_label: string | null
   price: number
@@ -341,7 +339,6 @@ export default eventHandler(async (event: H3Event): Promise<OrderResponse> => {
       order_id: newOrder.id,
       product_id: typeof item.productId === 'string' ? item.productId : null,
       product_name: item.name,
-      product_image: item.image || null,
       variant_id: item.variantId || null,
       variant_label: item.variantLabel || null,
       price: item.price,

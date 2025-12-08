@@ -28,23 +28,23 @@
       </div>
       <div class="grid grid-cols-2 grid-rows-2 gap-4 sm:gap-6 lg:gap-8">
         <img
-          src="https://tailwindcss.com/plus-assets/img/ecommerce-images/product-feature-03-detail-01.jpg"
-          alt="Walnut card tray with white powder coated steel divider and 3 punchout holes."
+          src="/images/choose/choose1.jpeg"
+          alt="Two gold zodiac perfume bottles labeled Capricorn and Virgo with silk cloth"
           class="rounded-lg bg-gray-100"
         />
         <img
-          src="https://tailwindcss.com/plus-assets/img/ecommerce-images/product-feature-03-detail-02.jpg"
-          alt="Top down view of walnut card tray with embedded magnets and card groove."
+          src="/images/choose/choose2.jpeg"
+          alt="Lattafa Khamrah perfume in a clear cut-glass bottle on a white plinth"
           class="rounded-lg bg-gray-100"
         />
         <img
-          src="https://tailwindcss.com/plus-assets/img/ecommerce-images/product-feature-03-detail-03.jpg"
-          alt="Side of walnut card tray with card groove and recessed card area."
+          src="/images/choose/choose3.jpeg"
+          alt="Flat lay of three ornate gold perfume bottles including Grecia and crystal flacon"
           class="rounded-lg bg-gray-100"
         />
         <img
-          src="https://tailwindcss.com/plus-assets/img/ecommerce-images/product-feature-03-detail-04.jpg"
-          alt="Walnut card tray filled with cards and card angled in dedicated groove."
+          src="/images/choose/choose4.jpeg"
+          alt="Gift boxes with orange ribbons and set of three travel perfume vials"
           class="rounded-lg bg-gray-100"
         />
       </div>

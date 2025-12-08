@@ -106,6 +106,12 @@ const schema = z.object({
     .min(4, 'Укажите индекс')
     .regex(/^\d{4,10}$/u, 'Некорректный индекс'),
   notes: z.string().optional(), // ✅ ДОБАВЛЕНО
+  acceptTerms: z
+    .boolean()
+    .refine(
+      (value) => value === true,
+      'Нужно согласиться с политикой конфиденциальности и договором оферты'
+    ),
 })
 
 type FormData = z.infer<typeof schema>
@@ -126,6 +132,7 @@ const form = reactive<FormData>({
   apartment: '',
   postalCode: '',
   notes: '', // ✅ ДОБАВЛЕНО
+  acceptTerms: false,
 })
 
 const errors = reactive<Partial<Record<keyof FormData, string>>>({})
@@ -356,13 +363,30 @@ function getContactMethodLabel(method: string): string {
             </div>
 
             <!-- ✅ УЛУЧШЕНО: Кнопка с состояниями (desktop) -->
+            <div class="hidden lg:flex items-start gap-2 mt-4">
+              <input
+                id="checkout-terms-desktop"
+                v-model="form.acceptTerms"
+                type="checkbox"
+                class="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                @change="validateField('acceptTerms')"
+              />
+              <label for="checkout-terms-desktop" class="text-sm text-gray-700 leading-snug">
+                Я соглашаюсь с
+                <a href="/privacy" class="text-primary">Политикой конфиденциальности</a> и
+                <a href="/offer" class="text-primary">Договором оферты</a>
+              </label>
+            </div>
+            <p v-if="errors.acceptTerms" class="hidden lg:block mt-2 text-xs text-red-600">
+              {{ errors.acceptTerms }}
+            </p>
             <button
               type="button"
               class="hidden lg:block mt-6 w-full rounded-lg px-4 py-3 text-sm font-medium text-white transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               :class="
                 submitting ? 'bg-gray-400' : 'bg-primary hover:bg-primary/80 active:scale-[0.98]'
               "
-              :disabled="cart.items.length === 0 || submitting"
+              :disabled="cart.items.length === 0 || submitting || !form.acceptTerms"
               @click="confirmSubmit = true"
             >
               <span v-if="!submitting" class="flex items-center justify-center gap-2">
@@ -644,13 +668,30 @@ function getContactMethodLabel(method: string): string {
         </form>
         <!-- Мобильная кнопка оформления -->
         <div class="lg:hidden mt-6">
+          <div class="flex items-start gap-2 mb-3">
+            <input
+              id="checkout-terms-mobile"
+              v-model="form.acceptTerms"
+              type="checkbox"
+              class="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+              @change="validateField('acceptTerms')"
+            />
+            <label for="checkout-terms-mobile" class="text-sm text-gray-700 leading-snug">
+              Я соглашаюсь с
+              <a href="/privacy" class="text-primary">Политикой конфиденциальности</a> и
+              <a href="/offer" class="text-primary">Договором оферты</a>
+            </label>
+          </div>
+          <p v-if="errors.acceptTerms" class="mt-1 text-xs text-red-600">
+            {{ errors.acceptTerms }}
+          </p>
           <button
             type="button"
             class="w-full rounded-lg px-4 py-3 text-sm font-medium text-white transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             :class="
               submitting ? 'bg-gray-400' : 'bg-primary hover:bg-primary/80 active:scale-[0.98]'
             "
-            :disabled="cart.items.length === 0 || submitting"
+            :disabled="cart.items.length === 0 || submitting || !form.acceptTerms"
             @click="confirmSubmit = true"
           >
             <span v-if="!submitting" class="flex items-center justify-center gap-2">
@@ -813,7 +854,7 @@ function getContactMethodLabel(method: string): string {
                 </button>
                 <button
                   class="flex-1 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/80 transition-colors disabled:opacity-50"
-                  :disabled="submitting"
+                  :disabled="submitting || !form.acceptTerms"
                   @click="submit"
                 >
                   <span v-if="!submitting">Подтвердить</span>

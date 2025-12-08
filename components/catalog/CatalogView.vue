@@ -88,7 +88,6 @@ const mobileFiltersOpen = ref(false)
 
 const {
   products,
-  hasNext,
   initialLoading,
   isLoadingMore,
   filters,

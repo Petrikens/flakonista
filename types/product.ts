@@ -39,3 +39,20 @@ export interface Product {
   brands?: Brand | null
   brand?: Brand
 }
+
+export interface Aromabox {
+  id: string
+  name: string
+  gender: Gender
+  suits: string | null
+  benefits: string | null
+  price_3ml?: number | null | undefined
+  price_5ml?: number | null | undefined
+  price_10ml?: number | null | undefined
+  image_path: string[]
+  season_group: SeasonGroup | null
+  profile_tags: ProfileTag[]
+  pack: string[]
+  created_at: string
+  updated_at: string
+}

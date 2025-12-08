@@ -178,6 +178,7 @@ import {
   generateProductAlt,
   createBottleVariants,
 } from '~/utils/constants'
+import { isAromaboxProduct } from '~/utils/aromabox'
 
 const props = defineProps<{
   products: Product[]
@@ -352,7 +353,9 @@ async function onAddToCart(product: Product, event: MouseEvent) {
  * Генерация ссылки на товар
  */
 function productLink(product: Product): string {
-  return `/products/${product.id}`
+  return isAromaboxProduct(product)
+    ? `/catalog/aromaboxes/${product.id}`
+    : `/products/${product.id}`
 }
 
 // Состояние быстрого просмотра (локальное, не сохраняется при навигации)

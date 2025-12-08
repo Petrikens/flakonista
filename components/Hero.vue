@@ -26,38 +26,15 @@
                   <div class="grid shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
                     <div class="h-64 w-44 overflow-hidden rounded-lg sm:opacity-0 lg:opacity-100">
                       <img
-                        src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-hero-image-tile-01.jpg"
-                        alt=""
+                        src="/images/hero/hero1.jpeg"
+                        alt="White marble and gold Grecia perfume bottle standing upright"
                         class="size-full object-cover"
                       />
                     </div>
                     <div class="h-64 w-44 overflow-hidden rounded-lg">
                       <img
-                        src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-hero-image-tile-02.jpg"
-                        alt=""
-                        class="size-full object-cover"
-                      />
-                    </div>
-                  </div>
-                  <div class="grid shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
-                    <div class="h-64 w-44 overflow-hidden rounded-lg">
-                      <img
-                        src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-hero-image-tile-03.jpg"
-                        alt=""
-                        class="size-full object-cover"
-                      />
-                    </div>
-                    <div class="h-64 w-44 overflow-hidden rounded-lg">
-                      <img
-                        src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-hero-image-tile-04.jpg"
-                        alt=""
-                        class="size-full object-cover"
-                      />
-                    </div>
-                    <div class="h-64 w-44 overflow-hidden rounded-lg">
-                      <img
-                        src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-hero-image-tile-05.jpg"
-                        alt=""
+                        src="/images/hero/hero2.jpeg"
+                        alt="Flat lay of Grecia perfume with crystal and amber square flacons"
                         class="size-full object-cover"
                       />
                     </div>
@@ -65,15 +42,38 @@
                   <div class="grid shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
                     <div class="h-64 w-44 overflow-hidden rounded-lg">
                       <img
-                        src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-hero-image-tile-06.jpg"
-                        alt=""
+                        src="/images/hero/hero3.jpeg"
+                        alt="Deep purple After Effect French Avenue perfume bottle"
                         class="size-full object-cover"
                       />
                     </div>
                     <div class="h-64 w-44 overflow-hidden rounded-lg">
                       <img
-                        src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-hero-image-tile-07.jpg"
-                        alt=""
+                        src="/images/hero/hero4.jpeg"
+                        alt="White Breeze eau de parfum with silhouette tree artwork"
+                        class="size-full object-cover"
+                      />
+                    </div>
+                    <div class="h-64 w-44 overflow-hidden rounded-lg">
+                      <img
+                        src="/images/hero/hero7.jpeg"
+                        alt="Black 9pm Afnan perfume bottle with bold numeral nine"
+                        class="size-full object-cover"
+                      />
+                    </div>
+                  </div>
+                  <div class="grid shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
+                    <div class="h-64 w-44 overflow-hidden rounded-lg">
+                      <img
+                        src="/images/hero/hero6.jpeg"
+                        alt="Silver Supremacy Afnan bottle shaped like a flask with ring cap"
+                        class="size-full object-cover"
+                      />
+                    </div>
+                    <div class="h-64 w-44 overflow-hidden rounded-lg">
+                      <img
+                        src="/images/hero/hero5.jpeg"
+                        alt="Eternal Oud perfume with bronze tree cap and amber juice"
                         class="size-full object-cover"
                       />
                     </div>

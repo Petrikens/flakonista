@@ -9,6 +9,12 @@ const schema = z.object({
     .regex(/^[+\d][\d\s()-]{9,}$/u, 'Некорректный номер'),
   email: z.string().email('Некорректный email'),
   message: z.string().trim().min(1, 'Введите сообщение'),
+  acceptTerms: z
+    .boolean()
+    .refine(
+      (value) => value === true,
+      'Нужно согласиться с политикой конфиденциальности и договором оферты'
+    ),
 })
 
 type ContactFormValues = z.infer<typeof schema>
@@ -18,6 +24,7 @@ const form = reactive<ContactFormValues>({
   phone: '',
   email: '',
   message: '',
+  acceptTerms: false,
 })
 
 const errors = reactive<Partial<Record<keyof ContactFormValues, string>>>({})
@@ -57,6 +64,7 @@ function resetForm() {
   form.phone = ''
   form.email = ''
   form.message = ''
+  form.acceptTerms = false
 }
 
 async function submit() {
@@ -142,11 +150,26 @@ async function submit() {
               @blur="validateField('message')"
             ></textarea>
             <p v-if="errors.message" class="text-xs text-red-600">{{ errors.message }}</p>
+            <div class="flex items-start gap-2">
+              <input
+                id="contact-terms"
+                v-model="form.acceptTerms"
+                type="checkbox"
+                class="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                @change="validateField('acceptTerms')"
+              />
+              <label for="contact-terms" class="text-sm text-slate-700 leading-snug">
+                Я соглашаюсь с
+                <a href="/privacy" class="text-primary">Политикой конфиденциальности</a> и
+                <a href="/offer" class="text-primary">Договором оферты</a>
+              </label>
+            </div>
+            <p v-if="errors.acceptTerms" class="text-xs text-red-600">{{ errors.acceptTerms }}</p>
           </div>
           <button
             type="submit"
             class="mt-8 flex items-center justify-center text-sm font-medium w-full rounded-md px-4 py-3 tracking-wide text-white cursor-pointer bg-primary hover:bg-primary/80 border-0 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-            :disabled="submitting"
+            :disabled="submitting || !form.acceptTerms"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

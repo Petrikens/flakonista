@@ -9,7 +9,7 @@
             <img
               :src="callout.imageSrc"
               :alt="callout.imageAlt"
-              class="w-full rounded-lg bg-white object-cover group-hover:opacity-75 max-sm:h-80 sm:aspect-2/1 lg:aspect-square"
+              class="w-full rounded-lg bg-white max-sm:object-contain object-cover max-sm:aspect-[4/3] sm:aspect-[2/1] lg:aspect-square group-hover:opacity-75"
             />
             <h3 class="mt-6 text-sm text-primary">
               <a :href="callout.href">
@@ -30,28 +30,23 @@ const callouts = [
   {
     name: 'Мужчинам',
     description: 'Выделяйтесь без лишних слов',
-    imageSrc:
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-02-edition-01.jpg',
-    imageAlt:
-      'Desk with leather desk pad, walnut desk organizer, wireless keyboard and mouse, and porcelain mug.',
+    imageSrc: '/images/categories/men.jpeg',
+    imageAlt: 'Black 9pm Afnan perfume bottle with matching box for men',
     href: '/catalog/men',
   },
   {
     name: 'Женщинам',
     description: 'За вашим шлейфом будут следовать',
-    imageSrc:
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-02-edition-02.jpg',
-    imageAlt:
-      'Wood table with porcelain mug, leather journal, brass pen, leather key ring, and a houseplant.',
+    imageSrc: '/images/categories/women.jpeg',
+    imageAlt: 'Red Saga perfume bottle nestled in a satin gift box for women',
     href: '/catalog/women',
   },
   {
     name: 'Подарочные наборы и аромабоксы',
     description: 'Лучшие ароматы уже собраны здесь',
-    imageSrc:
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-02-edition-03.jpg',
-    imageAlt: 'Collection of four insulated travel bottles on wooden shelf.',
-    href: '/catalog',
+    imageSrc: '/images/categories/aromaboxes.jpeg',
+    imageAlt: 'Black gift box with orange ribbon beside three amber aroma vials',
+    href: '/catalog/aromaboxes',
   },
 ]
 </script>
