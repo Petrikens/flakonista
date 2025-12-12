@@ -443,7 +443,7 @@ const catalogLink = computed(() => {
 
 const catalogName = computed(() => {
   if (!product.value?.gender) return 'Каталог'
-  return product.value.gender === 'women' ? 'Женщинам' : 'Мужчинам'
+  return product.value.gender === 'women' ? 'Для неё' : 'Для него'
 })
 
 // Структурированные данные для продукта

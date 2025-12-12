@@ -88,8 +88,8 @@ useHead({
           <p class="text-sm font-semibold uppercase tracking-[0.25em] text-primary">Коллекция</p>
           <h1 class="mt-3 text-3xl font-bold text-gray-900 sm:text-4xl">Аромабоксы</h1>
           <p class="mt-3 max-w-3xl text-base text-gray-600">
-            Специально собранные наборы нишевой парфюмерии. Выбирайте любимые ароматы и добавляйте
-            их в корзину так же, как и любую позицию каталога.
+            Специально собранные тематические наборы ароматов. Выбирайте любимые ароматы и
+            добавляйте их в корзину так же, как и любую позицию каталога.
           </p>
         </div>
         <div class="rounded-full bg-gray-50 px-5 py-2 text-sm font-medium text-gray-600">

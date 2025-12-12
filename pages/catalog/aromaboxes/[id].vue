@@ -96,7 +96,7 @@
               <h1 class="mt-2 text-3xl font-bold tracking-tight text-gray-900">
                 {{ product.name }}
               </h1>
-              <p class="mt-2 text-sm text-gray-500">Подборка нишевой парфюмерии от Flakonista</p>
+              <p class="mt-2 text-sm text-gray-500">Тематическая подборка ароматов от Флакониста</p>
             </div>
 
             <button
@@ -239,12 +239,17 @@
               <p class="mt-2 text-sm text-gray-600">{{ product.benefits }}</p>
             </div>
 
-            <div v-if="packItems.length">
+            <div v-if="packProducts.length">
               <h3 class="text-sm font-medium text-gray-900">Что внутри набора</h3>
               <ul class="mt-2 space-y-2 text-sm text-gray-600">
-                <li v-for="item in packItems" :key="item" class="flex items-start gap-2">
+                <li v-for="item in packProducts" :key="item.id" class="flex items-start gap-2">
                   <span class="mt-1 inline-flex h-2 w-2 rounded-full bg-primary"></span>
-                  <span>{{ item }}</span>
+                  <NuxtLink
+                    :to="`/products/${item.id}`"
+                    class="text-primary hover:text-primary/80 transition-colors"
+                  >
+                    {{ getPackProductLabel(item) }}
+                  </NuxtLink>
                 </li>
               </ul>
             </div>
@@ -370,10 +375,39 @@ if (error.value?.statusCode === 404) {
 }
 
 const product = computed<Product | null>(() => (data.value ? normalizeAromabox(data.value) : null))
-const packItems = computed(() => data.value?.pack ?? [])
+const packItemIds = computed(() => data.value?.pack ?? [])
+const { data: packProductsData } = await useAsyncData<Product[]>(
+  `aromabox:${aromaboxId}:pack-products`,
+  async () => {
+    if (!packItemIds.value.length) return []
+
+    const products = await Promise.all(
+      packItemIds.value.map(async (id) => {
+        try {
+          return await $fetch<Product>(`/api/products/${id}`)
+        } catch (err) {
+          console.error(`[AromaboxPage] Failed to fetch pack product ${id}:`, err)
+          return null
+        }
+      })
+    )
+
+    return products.filter((item): item is Product => Boolean(item))
+  },
+  {
+    server: true,
+    watch: [packItemIds],
+  }
+)
+const packProducts = computed(() => packProductsData.value ?? [])
 const relatedProducts = computed<Product[]>(() =>
   (data.value?.related_sets ?? []).map((item) => normalizeAromabox(item))
 )
+
+function getPackProductLabel(product: Product) {
+  const brandName = product.brand?.name || product.brands?.name
+  return brandName ? `${brandName} - ${product.name}` : product.name
+}
 
 const config = useRuntimeConfig()
 const baseUrl = config.public.siteUrl || 'https://flakonista.by'

@@ -1,3 +1,4 @@
+@
 <script setup lang="ts">
 import { MagnifyingGlassIcon } from '@heroicons/vue/24/outline'
 import type { Product } from '~/types/product'
@@ -9,6 +10,7 @@ const highlightedIndex = ref(-1)
 const dropdownId = 'header-search-results'
 const inputId = 'header-search-input'
 const hasBeenFocused = ref(false)
+const inputRef = ref<HTMLInputElement | null>(null)
 
 let closeTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -74,9 +76,10 @@ function handleSubmit() {
 }
 
 function handleSelect(product: Product) {
-  query.value = product.name
   clearCloseTimer()
   closeDropdown()
+  inputRef.value?.blur()
+  query.value = ''
   navigateTo(`/products/${product.id}`)
 }
 
@@ -150,12 +153,13 @@ watch(
 
       <div class="relative">
         <input
+          ref="inputRef"
           :id="inputId"
           v-model="query"
           type="search"
           autocomplete="off"
           placeholder="Поиск..."
-          class="w-full rounded-full border border-gray-200 bg-white/90 px-4 py-2.5 pr-12 text-sm text-gray-900 shadow-sm outline-none transition focus:border-primary"
+          class="w-full rounded-full border border-gray-200 bg-white/90 px-4 py-2.5 pr-12 text-base text-gray-900 shadow-sm outline-none transition focus:border-primary sm:text-sm"
           role="combobox"
           :aria-expanded="isOpen"
           aria-haspopup="listbox"

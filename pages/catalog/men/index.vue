@@ -54,7 +54,7 @@ const breadcrumbData = useBreadcrumbStructuredData(
   [
     { name: 'Главная', url: '/' },
     { name: 'Каталог', url: '/catalog' },
-    { name: 'Мужчинам', url: '/catalog/men' },
+    { name: 'Для него', url: '/catalog/men' },
   ],
   baseUrl
 )
@@ -71,7 +71,7 @@ useHead({
 
 <template>
   <CatalogView
-    title="Мужчинам"
+    title="Для него"
     :genders="['men', 'unisex']"
     :page-size="20"
     :initial-state-key="INITIAL_KEY"

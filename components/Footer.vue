@@ -106,6 +106,7 @@ const registryNote =
 const socialLinks: FooterLink[] = [
   { href: 'https://www.instagram.com/flakonista', label: 'Instagram' },
   { href: 'https://t.me/flakonista', label: 'Telegram' },
+  { href: 'https://www.tiktok.com/@flakinista?_r=1&_t=ZM-923iqXqllO4', label: 'TikTok' },
 ]
 
 interface ContactLink {

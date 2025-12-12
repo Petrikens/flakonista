@@ -9,7 +9,7 @@
             <img
               :src="callout.imageSrc"
               :alt="callout.imageAlt"
-              class="w-full rounded-lg bg-white max-sm:object-contain object-cover max-sm:aspect-[4/3] sm:aspect-[2/1] lg:aspect-square group-hover:opacity-75"
+              class="w-full rounded-lg bg-white max-sm:object-contain object-cover sm:aspect-square lg:aspect-square group-hover:opacity-75"
             />
             <h3 class="mt-6 text-sm text-primary">
               <a :href="callout.href">
@@ -28,21 +28,21 @@
 <script setup>
 const callouts = [
   {
-    name: 'Мужчинам',
+    name: 'Для него',
     description: 'Выделяйтесь без лишних слов',
     imageSrc: '/images/categories/men.jpeg',
     imageAlt: 'Black 9pm Afnan perfume bottle with matching box for men',
     href: '/catalog/men',
   },
   {
-    name: 'Женщинам',
+    name: 'Для неё',
     description: 'За вашим шлейфом будут следовать',
     imageSrc: '/images/categories/women.jpeg',
     imageAlt: 'Red Saga perfume bottle nestled in a satin gift box for women',
     href: '/catalog/women',
   },
   {
-    name: 'Подарочные наборы и аромабоксы',
+    name: 'Аромабоксы и аромабоксы',
     description: 'Лучшие ароматы уже собраны здесь',
     imageSrc: '/images/categories/aromaboxes.jpeg',
     imageAlt: 'Black gift box with orange ribbon beside three amber aroma vials',

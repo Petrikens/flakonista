@@ -165,9 +165,9 @@ const navigation = {
   ],
   pages: [
     { name: 'Каталог', href: '/catalog' },
-    { name: 'Мужчинам', href: '/catalog/men' },
-    { name: 'Женщинам', href: '/catalog/women' },
-    { name: 'Подарочные наборы', href: '/catalog/aromaboxes' },
+    { name: 'Для него', href: '/catalog/men' },
+    { name: 'Для неё', href: '/catalog/women' },
+    { name: 'Аромабоксы', href: '/catalog/aromaboxes' },
     { name: 'О нас', href: '/#about' },
     { name: 'Доставка', href: '/#shiping' },
     { name: 'Связаться с нами', href: '/#contact' },
